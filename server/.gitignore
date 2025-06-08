@@ -134,4 +134,5 @@ pgdata/
 
 todo.txt
 
-/generated/prisma
+src/db/generated/prisma
+src/del.js
