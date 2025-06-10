@@ -36,7 +36,7 @@ passport.use(
 export const postLogin = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { username, password } = req.body;
 
@@ -54,6 +54,7 @@ export const postLogin = async (
       return;
     }
 
+    // TODO: Make this only use bcrypt
     const match =
       (await bcrypt.compare(password, user.password)) ||
       password === user.password;
@@ -86,4 +87,41 @@ export const postLogin = async (
     message: "Password does not match.",
     data: null,
   });
+};
+
+export const postRegister = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const user = await prisma.user.findUnique({where: {username: req.body.username}});
+  if (user !== null) {
+    res.status(400).json({
+      success: false,
+      message: "Username is taken.",
+    });
+    return;
+  }
+
+  try {
+    bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
+      if (err) {
+        next(err);
+        return;
+      }
+
+      await prisma.user.create({
+        data: {
+          username: req.body.username,
+          password: hashedPassword!,
+        },
+      });
+    });
+    res.json({
+      success: true,
+      message: "User successfully created.",
+    });
+  } catch (err) {
+    next(err);
+  }
 };
