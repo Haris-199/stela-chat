@@ -15,7 +15,7 @@ app.use(morgan("dev"));
 app.use(cors({ origin: CLIENT_URL }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use("/", router);
+app.use("/api", router);
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}. See http://localhost:${PORT}`);
