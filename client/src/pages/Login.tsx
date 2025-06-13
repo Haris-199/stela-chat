@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login, LoginError } from "../services/api";
-import { User, Lock, X } from "lucide-react";
+import { Lock, X, User2 } from "lucide-react";
 import { setItem } from "../services/localStorage";
 
 export default function Login() {
@@ -25,9 +25,9 @@ export default function Login() {
   }
 
   return (
-    <div className="grow w-full h-full bg-gradient-to-br from-primary-200 to-primary-400 grid place-items-center">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-[90%] sm:w-[min(450px,50%)]">
-        <h1 className="text-3xl font-bold text-center text-black mb-6">
+    <div className="grow w-full bg-gradient-to-br from-primary-200 to-primary-400 grid place-items-center">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-[90%] sm:w-[min(450px,60%)]">
+        <h1 className="text-3xl font-bold text-center text-primary-700 mb-6">
           Sign in to Stela
         </h1>
         <form className="flex flex-col gap-y-5" onSubmit={handleSubmit}>
@@ -40,7 +40,7 @@ export default function Login() {
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <User size={18} />
+                <User2 size={18} />
               </span>
               <input
                 id="username"
@@ -79,7 +79,7 @@ export default function Login() {
                 autoComplete="current-password"
                 required
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
-                placeholder="•••••••••"
+                placeholder="••••••••••"
                 aria-invalid={attempt?.field === "password"}
               />
               {attempt?.field === "password" && (
@@ -99,7 +99,7 @@ export default function Login() {
             Sign In
           </button>
         </form>
-        <p className="mt-6 text-center text-sm text-black-600">
+        <p className="mt-4 text-center text-sm text-black-600">
           Don't have an account?{" "}
           <Link
             to="/register"
@@ -108,6 +108,19 @@ export default function Login() {
             Register
           </Link>
         </p>
+        <div className="mt-4 border-t">
+          <h2 className="text-lg font-semibold text-center text-primary-700 py-3">Try now</h2>
+          <p className="text-sm text-gray-600 text-center mb-4">Want to explore without signing up? Sign in as a guest!</p>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              className="py-2 px-6 bg-gray-200 hover:bg-primary-100 text-primary-700 font-semibold rounded-md shadow focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors"
+              onClick={() => console.log("Feature coming soon")}
+            >
+              Sign in as Guest
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
