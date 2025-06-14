@@ -25,4 +25,3 @@ describe("GET /", () => {
     expect(response.type).toBe("application/json");
   });
 });
-

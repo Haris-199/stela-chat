@@ -33,11 +33,7 @@ passport.use(
   }),
 );
 
-export const postLogin = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;
 
   try {
@@ -94,11 +90,7 @@ export const postLogin = async (
   });
 };
 
-export const postRegister = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const postRegister = async (req: Request, res: Response, next: NextFunction) => {
   const user = await prisma.user.findUnique({
     where: { username: req.body.username },
   });
