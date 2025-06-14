@@ -30,7 +30,7 @@ passport.use(
     } catch (error) {
       return done(error, false);
     }
-  })
+  }),
 );
 
 export const postLogin = async (
@@ -48,17 +48,17 @@ export const postLogin = async (
     if (user === null) {
       res.status(400).json({
         success: false,
-        message: "User not found.",
-        data: null,
+        errors: [
+          {
+            field: "username",
+            message: "Incorrect username or user does not exist.",
+          },
+        ],
       });
       return;
     }
 
-    // TODO: Make this only use bcrypt
-    const match =
-      (await bcrypt.compare(password, user.password)) ||
-      password === user.password;
-
+    const match = await bcrypt.compare(password, user.password);
     if (match) {
       const userPayload = {
         id: user.id,
@@ -82,10 +82,15 @@ export const postLogin = async (
   } catch (error) {
     next(error);
   }
+
   res.status(400).json({
     success: false,
-    message: "Password does not match.",
-    data: null,
+    errors: [
+      {
+        field: "password",
+        message: "Incorrect password.",
+      },
+    ],
   });
 };
 
@@ -94,11 +99,18 @@ export const postRegister = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const user = await prisma.user.findUnique({where: {username: req.body.username}});
+  const user = await prisma.user.findUnique({
+    where: { username: req.body.username },
+  });
   if (user !== null) {
     res.status(400).json({
       success: false,
-      message: "Username is taken.",
+      errors: [
+        {
+          field: "username",
+          message: "Username is taken.",
+        },
+      ],
     });
     return;
   }
