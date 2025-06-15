@@ -10,10 +10,7 @@ export default function Register() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formElements = e.target as HTMLFormElement;
-    const attempt = await register(
-      formElements["username"].value,
-      formElements["password"].value
-    );
+    const attempt = await register(formElements["username"].value, formElements["password"].value);
 
     if (attempt.success) {
       navigate("/login");
@@ -30,10 +27,7 @@ export default function Register() {
         </h1>
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
               Username
             </label>
             <div className="relative">
@@ -68,10 +62,7 @@ export default function Register() {
             )}
           </div>
           <div className="relative">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <div className="relative">
@@ -103,13 +94,13 @@ export default function Register() {
                 className="mt-2 text-sm text-red-600"
               >
                 {attempt.errors.password.map((msg) => (
-                  <p key={msg} className="mt-2 text-sm text-red-600">{msg}</p>
+                  <p key={msg} className="mt-2 text-sm text-red-600">
+                    {msg}
+                  </p>
                 ))}
               </div>
             )}
-            <p className="mt-2 text-xs text-gray-500">
-              Your password must contain at least:
-            </p>
+            <p className="mt-2 text-xs text-gray-500">Your password must contain at least:</p>
             <ul className="mt-2 text-xs text-gray-500 list-disc mx-4 space-y-1">
               <li>Eight characters</li>
               <li>One uppercase letter</li>
@@ -117,9 +108,7 @@ export default function Register() {
               <li>One digit</li>
               <li>
                 One special character{" "}
-                <span className="font-mono">
-                  {"(!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~)"}
-                </span>
+                <span className="font-mono">{"(!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~)"}</span>
               </li>
             </ul>
           </div>
@@ -133,17 +122,12 @@ export default function Register() {
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-primary-600 hover:underline font-medium"
-          >
+          <Link to="/login" className="text-primary-600 hover:underline font-medium">
             Sign in
           </Link>
         </p>
         <div className="mt-4 border-t">
-          <h2 className="text-lg font-semibold text-center text-primary-700 py-3">
-            Try now
-          </h2>
+          <h2 className="text-lg font-semibold text-center text-primary-700 py-3">Try now</h2>
           <p className="text-sm text-gray-600 text-center mb-4">
             Want to explore without signing up? Sign in as a guest!
           </p>
