@@ -8,21 +8,8 @@ export async function login(username: string, password: string) {
   if (res.status >= 500) {
     throw new Error("Login failed, server error.");
   }
-  
-  const json = (await res.json()) as APIResponse<UserPayload> | LoginError;
-  if (json.success) {
-    return json;
-  }
 
-  switch (json.message) {
-    case "Incorrect username or user does not exist.":
-      json.field = "username";
-      break;
-    case "Incorrect password.":
-      json.field = "password";
-      break;
-  }
-  return json;
+  return (await res.json()) as APIResponse<UserPayload> | LoginError;
 }
 
 export async function register(username: string, password: string) {
@@ -31,6 +18,7 @@ export async function register(username: string, password: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
   });
+
   if (res.status >= 500) {
     throw new Error("Login failed, server error.");
   }
@@ -59,13 +47,12 @@ export interface APISuccess {
   message: string;
 }
 
-export interface APIError {
+export interface LoginError {
   success: false;
-  message: string;
-}
-
-export interface LoginError extends APIError {
-  field: string;
+  errors: {
+    username: string[];
+    password: string[];
+  };
 }
 
 export interface RegisterError {

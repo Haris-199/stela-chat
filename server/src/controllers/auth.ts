@@ -44,12 +44,10 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
     if (user === null) {
       res.status(400).json({
         success: false,
-        errors: [
-          {
-            field: "username",
-            message: "Incorrect username or user does not exist.",
-          },
-        ],
+        errors: {
+          username: ["Incorrect username or user does not exist."],
+          password: [],
+        },
       });
       return;
     }
@@ -81,12 +79,10 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
 
   res.status(400).json({
     success: false,
-    errors: [
-      {
-        field: "password",
-        message: "Incorrect password.",
-      },
-    ],
+    errors: {
+      username: [],
+      password: ["Incorrect password."],
+    },
   });
 };
 
@@ -94,15 +90,14 @@ export const postRegister = async (req: Request, res: Response, next: NextFuncti
   const user = await prisma.user.findUnique({
     where: { username: req.body.username },
   });
+
   if (user !== null) {
     res.status(400).json({
       success: false,
-      errors: [
-        {
-          field: "username",
-          message: "Username is taken.",
-        },
-      ],
+      errors: {
+        username: ["Username is taken."],
+        password: [],
+      },
     });
     return;
   }

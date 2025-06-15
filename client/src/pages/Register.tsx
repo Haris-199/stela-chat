@@ -47,7 +47,7 @@ export default function Register() {
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="Choose a username"
                 autoComplete="username"
-                aria-invalid={!!(attempt && attempt.errors.username.length > 0)}
+                aria-invalid={!!attempt && attempt.errors.username.length > 0}
                 aria-describedby="username-error"
               />
               {attempt && attempt.errors.username.length > 0 && (
@@ -103,7 +103,7 @@ export default function Register() {
                 className="mt-2 text-sm text-red-600"
               >
                 {attempt.errors.password.map((msg) => (
-                  <p className="mt-2 text-sm text-red-600">{msg}</p>
+                  <p key={msg} className="mt-2 text-sm text-red-600">{msg}</p>
                 ))}
               </div>
             )}
