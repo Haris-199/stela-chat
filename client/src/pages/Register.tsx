@@ -20,7 +20,7 @@ export default function Register() {
   }
 
   return (
-    <div className="grow w-full py-4 flex items-center justify-center bg-gradient-to-br from-blue-200 to-primary-400">
+    <main className="grow w-full py-4 flex items-center justify-center bg-gradient-to-br from-blue-200 to-primary-400">
       <div className="bg-white shadow-lg rounded-lg p-8 w-[90%] sm:w-[min(450px,60%)]">
         <h1 className="text-3xl font-bold text-center text-primary-700 mb-6">
           Create your account
@@ -142,6 +142,6 @@ export default function Register() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

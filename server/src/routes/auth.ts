@@ -5,9 +5,12 @@ import { authenticateJWT } from "../middleware/auth";
 const router = Router();
 
 router.post("/login", postLogin);
-router.post("/register", postRegister); // TODO: Add validation for strong password
-router.post("/protected", authenticateJWT, (req, res) => {
-  res.json("Success, this is protected.");
+router.post("/register", postRegister);
+router.post("/verify", authenticateJWT, (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Valid JWT token.",
+  });
 });
 
 export default router;
