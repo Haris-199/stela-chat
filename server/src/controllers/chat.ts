@@ -4,7 +4,10 @@ import { prisma } from "../db/client";
 export async function getChats(req: Request, res: Response, next: NextFunction) {
   const user = req.user as any;
   try {
-    const chats = await prisma.chat.findMany({ where: { users: { some: { id: user.id } } } });
+    const chats = await prisma.chat.findMany({
+      where: { users: { some: { id: user.id } } },
+      include: { users: { select: { username: true } } },
+    });
     res.status(200).json({
       success: true,
       message: `${user.username}'s chats retrieved successfully.`,

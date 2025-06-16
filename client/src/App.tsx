@@ -20,7 +20,7 @@ export default function App() {
   }, [userData]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
+    <div className="min-h-screen flex flex-col items-stretch justify-center">
       <AuthContext value={{ userData, setUserData }}>
         <RouterProvider router={router} />
       </AuthContext>

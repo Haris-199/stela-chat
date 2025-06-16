@@ -1,3 +1,41 @@
+const URL = "http://localhost:3000";
+
+/**
+ * Fetches the messages of a specific chat by its ID.
+ *
+ * @param chatId - The ID of the chat to fetch messages for.
+ * @returns A promise that resolves to an `APIResponse` containing the list of messages.
+ * @throws If the request fails or the response is not ok.
+ */
+export async function getMessagesOfChat(user: UserPayload, chatId: number) {
+  const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch messages for chat");
+  }
+  return (await res.json()) as APIResponse<Message[]>;
+}
+
+/**
+ * Fetches the list of  for a given user.
+ *
+ * @param user - The user payload containing the user's token.
+ * @returns A promise that resolves to an `APIResponse` containing the list of chats.
+ * @throws If the request fails or the response is not ok.
+ */
+export async function getChats(user: UserPayload) {
+  const res = await fetch(`${URL}/api/chat`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch chats");
+  }
+  return (await res.json()) as APIResponse<Chat[]>;
+}
+
 /**
  * Verifies the validity of a JWT token by sending it to the backend verification endpoint.
  *
@@ -5,7 +43,7 @@
  * @returns A promise that resolves to `true` if the token is valid, or `false` otherwise.
  */
 export async function verify(token: string) {
-  const res = await fetch("http://localhost:3000/api/auth/verify", {
+  const res = await fetch(`${URL}/api/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
   });
@@ -25,7 +63,7 @@ export async function verify(token: string) {
  * @throws If the server responds with a status code >= 500.
  */
 export async function login(username: string, password: string) {
-  const res = await fetch("http://localhost:3000/api/auth/login", {
+  const res = await fetch(`${URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -48,7 +86,7 @@ export async function login(username: string, password: string) {
  * @throws If the server responds with a status code >= 500.
  */
 export async function register(username: string, password: string) {
-  const res = await fetch("http://localhost:3000/api/auth/register", {
+  const res = await fetch(`${URL}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -68,6 +106,28 @@ export interface UserPayload {
     username: string;
     createdAt: Date;
     updatedAt: Date;
+  };
+}
+
+export interface Chat {
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+  users: {
+    username: string;
+  }[];
+}
+
+export interface Message {
+  id: number;
+  chatId: number;
+  userId: number;
+  text: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: {
+    username: string;
   };
 }
 
