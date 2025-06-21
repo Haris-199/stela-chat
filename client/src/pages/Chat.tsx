@@ -1,13 +1,16 @@
-import { Link } from "react-router-dom";
-import { Chat as Chat_t, getChats, getMessagesOfChat, Message } from "../services/api";
+import { Chat as Chat_t, getChats, getMessagesOfChat, Message as Message_t } from "../services/api";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../contexts/AuthContext";
+import ChatSidebar from "../components/ChatSidebar";
+import ChatHeader from "../components/ChatHeader";
+import MessageList from "../components/MessageList";
+import MessageInput from "../components/MessageInput";
 
 export default function Chat() {
   const { userData } = useContext(AuthContext);
   const [chats, setChats] = useState<Chat_t[] | null>(null);
   const [currentChat, setCurrentChat] = useState(-1);
-  const [msgs, setMsgs] = useState<Message[] | null>(null);
+  const [msgs, setMsgs] = useState<Message_t[] | null>(null);
 
   useEffect(() => {
     getChats(userData!).then((res) => setChats(res.data));
@@ -17,38 +20,13 @@ export default function Chat() {
   }, [currentChat, userData]);
 
   return (
-    <main>
-      <ul>
-        <li>
-          <Link to={"/"}>Home</Link>
-        </li>
-        <li>
-          <Link to={"/Login"}>Login</Link>
-        </li>
-        <li>
-          <Link to={"/Register"}>Register</Link>
-        </li>
-        <li>
-          <Link to={"/Chat"}>Chat</Link>
-        </li>
-        <li>
-          <Link to={"/Profile"}>Profile</Link>
-        </li>
-      </ul>
-      <h1 className="bg-blue-300">Chat</h1>
-
-      {/* chats */}
-      {chats &&
-        chats.map((chat) => (
-          <button onClick={() => setCurrentChat(chat.id)} key={chat.id}>
-            {JSON.stringify(chat)}
-          </button>
-        ))}
-
-      {/* messages */}
-      <div className="bg-blue-300">
-        {msgs && msgs.map((msg) => <p key={msg.id}>{JSON.stringify(msg)}</p>)}
-      </div>
-    </main>
+    <div className="flex h-screen">
+      <ChatSidebar chats={chats} currentChat={currentChat} setCurrentChat={setCurrentChat} />
+      <main className="flex-1 flex flex-col bg-gradient-to-br from-primary-100 via-primary-200 to-primary-100">
+        <ChatHeader currentChat={currentChat} chats={chats} />
+        <MessageList msgs={msgs} currentChat={currentChat} />
+        <MessageInput currentChat={currentChat} />
+      </main>
+    </div>
   );
 }

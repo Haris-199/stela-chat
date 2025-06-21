@@ -126,7 +126,7 @@ export interface Message {
   text: string;
   createdAt: Date;
   updatedAt: Date;
-  user: {
+  sender: {
     username: string;
   };
 }
