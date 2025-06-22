@@ -1,14 +1,13 @@
-import { Chat as Chat_t } from "../services/api";
+import { MessageCircle } from "lucide-react";
+import { Chat } from "../services/api";
 
-export default function ChatHeader({ currentChat, chats }: {
-  currentChat: number,
-  chats: Chat_t[] | null
-}) {
+export default function ChatHeader({ currentChat }: { currentChat: Chat }) {
   return (
-    <h1 className="px-6 py-4 flex items-center shadow-md text-2xl font-bold text-primary-800">
-      {currentChat > -1 && chats
-        ? chats.find((c) => c.id === currentChat)?.name
-        : "Select a group"}
-    </h1>
+    <div className="flex items-center px-6 md:py-4 shadow-lg">
+      <MessageCircle className="text-primary-800 ml-3" size={28} />
+      <h1 className="pl-3 py-4 flex items-center text-2xl font-bold text-primary-800">
+        {currentChat.name}
+      </h1>
+    </div>
   );
 }

@@ -1,19 +1,34 @@
 import Message from "./Message";
-import { Message as Message_t } from "../services/api";
+import { Chat, getMessagesOfChat, Message as Message_t, UserPayload } from "../services/api";
+import { useEffect, useState } from "react";
 
-export default function MessageList({ msgs, currentChat }: {
-  msgs: Message_t[] | null,
-  currentChat: number
+export default function MessageList({
+  userData,
+  currentChat,
+}: {
+  userData: UserPayload;
+  currentChat: Chat | null;
 }) {
+  const [msgs, setMsgs] = useState<Message_t[] | null>(null);
+  useEffect(() => {
+    if (currentChat !== null) {
+      getMessagesOfChat(userData, currentChat.id).then((res) => setMsgs(res.data));
+    }
+  }, [currentChat, userData]);
+
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-      {msgs && msgs.length > 0 ? (
-        msgs.map((msg) => <Message key={msg.id} msg={msg} />)
-      ) : currentChat > -1 ? (
-        <div className="text-primary-700 text-center">No messages yet.</div>
-      ) : (
-        <div />
-      )}
+    <div
+      className="flex-1 overflow-y-auto px-6 py-4 space-y-4 overflow-hidden"
+      style={{
+        scrollbarWidth: "thin",
+        scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
+      }}
+    >
+      {msgs !== null && msgs.length > 0
+        ? msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
+        : currentChat !== null && (
+            <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
+          )}
     </div>
   );
 }
