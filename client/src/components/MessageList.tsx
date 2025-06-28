@@ -1,6 +1,6 @@
 import Message from "./Message";
 import { Chat, getMessagesOfChat, Message as Message_t, UserPayload } from "../services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function MessageList({
   userData,
@@ -10,15 +10,21 @@ export default function MessageList({
   currentChat: Chat | null;
 }) {
   const [msgs, setMsgs] = useState<Message_t[] | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (currentChat !== null) {
       getMessagesOfChat(userData, currentChat.id).then((res) => setMsgs(res.data));
     }
   }, [currentChat, userData]);
 
+  useEffect(() => {
+    if (msgs !== null) bottomRef.current!.scrollIntoView();
+  }, [msgs]);
+
   return (
     <div
-      className="flex-1 overflow-y-auto px-6 py-4 space-y-4 overflow-hidden"
+      className="flex-1 overflow-y-auto px-6 py-4 pb-0 space-y-4 overflow-hidden"
       style={{
         scrollbarWidth: "thin",
         scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
@@ -29,6 +35,7 @@ export default function MessageList({
         : currentChat !== null && (
             <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
           )}
+      <div ref={bottomRef} />
     </div>
   );
 }
