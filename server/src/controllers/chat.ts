@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../db/client";
 
 export async function getChats(req: Request, res: Response, next: NextFunction) {
-  const user = req.user as any;
+const user = req.user!;
+
   try {
     const chats = await prisma.chat.findMany({
       where: { users: { some: { id: user.id } } },
@@ -29,6 +30,28 @@ export async function getChatMessages(req: Request, res: Response, next: NextFun
       success: true,
       message: "Messages retrieved successfully.",
       data: messages,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function postChatMessages(req: Request, res: Response, next: NextFunction) {
+  const { chatId } = req.params;
+  const { message } = req.body;
+  const user = req.user!;
+
+  try {
+    await prisma.message.create({
+      data: {
+        text: message,
+        chatId: +chatId,
+        userId: user.id,
+      },
+    });
+    res.status(201).json({
+      success: true,
+      message: "Message sent successfully.",
     });
   } catch (error) {
     next(error);

@@ -8,6 +8,14 @@ export type UserPayload = {
   };
 };
 
+export type User = {
+  id: number;
+  username: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type APIError = {
   success: false;
   message: string;
