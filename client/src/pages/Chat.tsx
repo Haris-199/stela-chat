@@ -1,4 +1,4 @@
-import { Chat as Chat_t, getChats } from "../services/api";
+import { Chat as ChatType, getChats } from "../services/api";
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../contexts/AuthContext";
 import ChatSidebar from "../components/ChatSidebar";
@@ -10,8 +10,8 @@ import { useParams } from "react-router-dom";
 
 export default function Chat() {
   const { userData } = useContext(AuthContext);
-  const [chats, setChats] = useState<Chat_t[] | null>(null);
-  const [currentChat, setCurrentChat] = useState<Chat_t | null>(null);
+  const [chats, setChats] = useState<ChatType[] | null>(null);
+  const [currentChat, setCurrentChat] = useState<ChatType | null>(null);
   const { chatId } = useParams();
 
   useEffect(() => {

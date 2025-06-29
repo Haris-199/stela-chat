@@ -1,5 +1,5 @@
 import Message from "./Message";
-import { Chat, getMessagesOfChat, Message as Message_t, UserPayload } from "../services/api";
+import { Chat, getMessagesOfChat, Message as MessageType, UserPayload } from "../services/api";
 import { useEffect, useRef, useState } from "react";
 
 export default function MessageList({
@@ -9,7 +9,7 @@ export default function MessageList({
   userData: UserPayload;
   currentChat: Chat | null;
 }) {
-  const [msgs, setMsgs] = useState<Message_t[] | null>(null);
+  const [msgs, setMsgs] = useState<MessageType[] | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
