@@ -10,6 +10,7 @@ const router = createBrowserRouter([
   { path: "/", element: <Home /> },
   { path: "login", element: <Login /> },
   { path: "register", element: <Register /> },
+  { path: "chat/:chatId", element: <Chat /> },
   { path: "chat", element: <Chat /> },
   { path: "profile", element: <Profile /> },
   { path: "*", element: <NotFound /> },
