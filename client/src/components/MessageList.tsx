@@ -7,14 +7,14 @@ export default function MessageList({
   chatId,
 }: {
   userData: UserPayload;
-  chatId: string | undefined;
+  chatId: number | undefined;
 }) {
   const [msgs, setMsgs] = useState<MessageType[] | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatId !== undefined) {
-      getMessagesOfChat(userData, +chatId).then((res) => setMsgs(res.data));
+      getMessagesOfChat(userData, chatId).then((res) => setMsgs(res.data));
     }
   }, [chatId, userData]);
 

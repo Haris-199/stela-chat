@@ -1,23 +1,50 @@
 import Avatar from "./Avatar";
-import { Chat } from "../services/api";
+import { Chat, getChats, UserPayload } from "../services/api";
 import { Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export default function ChatSidebar({
-  chats,
+  userData,
   chatId,
   setCurrentChat,
 }: {
-  chats: Chat[] | undefined;
-  chatId: number;
-  setCurrentChat: (id: Chat) => void;
+  userData: UserPayload;
+  chatId: number | undefined;
+  setCurrentChat: (chat: Chat | null) => void;
 }) {
+  const {
+    data: chats,
+    isLoading,
+    error,
+  } = useQuery({
+    queryFn: () => getChats(userData).then((res) => res.data),
+    queryKey: ["chats", userData],
+  });
+
+  useEffect(() => {
+    if (chatId !== undefined && chats !== undefined) {
+      setCurrentChat(chats.find((chat) => chat.id === chatId) || null);
+    }
+  }, [chatId, chats, setCurrentChat]);
+
+  if (isLoading) {
+    return <SkeletonLoader />;
+  }
+
+  if (error) {
+    return <Navigate to="/500" />;
+  }
 
   return (
     <aside className="w-64 text-white bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 flex flex-col py-4 shadow-lg">
       <h2 className="px-6 mb-4 flex justify-between items-center text-primary-100">
         <p className="font-bold text-lg">Chats</p>
-        <button className="flex flex-col items-center p-2 rounded-lg hover:bg-primary-700" title="New Chat">
+        <button
+          className="flex flex-col items-center p-2 rounded-lg hover:bg-primary-700"
+          title="New Chat"
+        >
           <Plus size={20} />
           <span className="text-xs mt-1">New</span>
         </button>
@@ -40,6 +67,34 @@ export default function ChatSidebar({
               <span className="truncate">{chat.name}</span>
             </Link>
           ))}
+      </nav>
+    </aside>
+  );
+}
+
+function SkeletonLoader() {
+  return (
+    <aside className="w-64 text-white bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 flex flex-col py-4 shadow-lg">
+      <h2 className="px-6 mb-4 flex justify-between items-center text-primary-100">
+        <p className="font-bold text-lg">Chats</p>
+        <button
+          className="flex flex-col items-center p-2 rounded-lg hover:bg-primary-700"
+          title="New Chat"
+        >
+          <Plus size={20} />
+          <span className="text-xs mt-1">New</span>
+        </button>
+      </h2>
+      <nav className="flex-1 flex flex-col gap-4 px-2 overflow-y-auto">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="animate-pulse first-of-type:mt-1 flex items-center gap-3 px-3 py-2 rounded-lg bg-primary-700/60 shadow-sm"
+          >
+            <div className="bg-primary-500/40 rounded-full size-10" />
+            <div className="h-4 bg-primary-500/40 rounded w-2/3" />
+          </div>
+        ))}
       </nav>
     </aside>
   );
