@@ -7,25 +7,47 @@ import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
 import Options from "../components/Options";
 import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Chat() {
   const { userData } = useContext(AuthContext);
-  const [chats, setChats] = useState<ChatType[] | null>(null);
   const [currentChat, setCurrentChat] = useState<ChatType | null>(null);
   const { chatId } = useParams();
 
-  useEffect(() => {
-    if (userData !== undefined) getChats(userData).then((res) => setChats(res.data));
-  }, [userData]);
+  const { data: chats, isLoading, error } = useQuery({
+    queryFn: () => getChats(userData!).then((res) => res.data),
+    queryKey: ["chats", userData],
+  });
+  console.log(chats);
 
   useEffect(() => {
-    if (userData !== undefined && chatId !== undefined && chats !== null) {
+    if (userData !== undefined && chatId !== undefined && chats !== undefined) {
       setCurrentChat(chats.find((chat) => chat.id === +chatId) || null);
     }
   }, [chatId, chats, userData]);
 
   if (userData === undefined) {
     return <h1>Error</h1>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-primary-50">
+        <span className="text-primary-700 text-xl font-semibold animate-pulse">
+          Loading chats...
+        </span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-red-50">
+        <span className="text-red-700 text-xl font-semibold">
+          Failed to load chats. Please try again.
+        </span>
+      </div>
+    );
   }
 
   return (
@@ -40,9 +62,11 @@ export default function Chat() {
             Select a chat
           </h1>
         )}
-        <MessageList userData={userData} currentChat={currentChat} />
+        <MessageList userData={userData} chatId={chatId} />
         {currentChat !== null && <MessageInput />}
       </main>
     </div>
   );
 }
+
+

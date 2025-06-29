@@ -26,6 +26,9 @@ export async function getMessagesOfChat(user: UserPayload, chatId: number) {
  * @throws If the request fails or the response is not ok.
  */
 export async function getChats(user: UserPayload) {
+  // throw new Error("getChats is not implemented yet");
+  
+  await new Promise((resolve) => setTimeout(resolve, 1000)); 
   const res = await fetch(`${URL}/api/chat`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },

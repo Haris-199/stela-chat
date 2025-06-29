@@ -8,7 +8,7 @@ export default function ChatSidebar({
   chatId,
   setCurrentChat,
 }: {
-  chats: Chat[] | null;
+  chats: Chat[] | undefined;
   chatId: number;
   setCurrentChat: (id: Chat) => void;
 }) {
