@@ -3,8 +3,7 @@ import { useParams } from "react-router-dom";
 import AuthContext from "../contexts/AuthContext";
 import ChatSidebar from "../components/ChatSidebar";
 import ChatHeader from "../components/ChatHeader";
-import MessageList from "../components/MessageList";
-import MessageInput from "../components/MessageInput";
+import ChatMessages from "../components/ChatMessages";
 import Options from "../components/Options";
 import { Chat as ChatType } from "../services/api";
 
@@ -26,8 +25,7 @@ export default function Chat() {
         {currentChat !== null ? (
           <>
             <ChatHeader name={currentChat.name} />
-            <MessageList userData={userData} chatId={chatId} />
-            <MessageInput />
+            <ChatMessages userData={userData} chatId={chatId} />
           </>
         ) : (
           <h1 className="px-6 py-4 md:py-8 shadow-lg text-2xl font-bold text-primary-800">
