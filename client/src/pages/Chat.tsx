@@ -25,7 +25,7 @@ export default function Chat() {
         {currentChat !== null ? (
           <>
             <ChatHeader name={currentChat.name} />
-            <ChatMessages userData={userData} chatId={chatId} />
+            <ChatMessages userData={userData} currentChat={currentChat} />
           </>
         ) : (
           <h1 className="px-6 py-4 md:py-8 shadow-lg text-2xl font-bold text-primary-800">

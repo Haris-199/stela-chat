@@ -1,30 +1,34 @@
 import Message from "./Message";
-import { getMessagesOfChat, Message as MessageType, UserPayload } from "../services/api";
+import { Chat, getMessagesOfChat, UserPayload } from "../services/api";
 import { useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { Smile, Send } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ChatMessages({
   userData,
-  chatId,
+  currentChat,
 }: {
   userData: UserPayload;
-  chatId: number | undefined;
+  currentChat: Chat;
 }) {
-  const [msgs, setMsgs] = useState<MessageType[] | null>(null);
   const [emojiPanelOpen, setEmojiPanelOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (chatId !== undefined) {
-      getMessagesOfChat(userData, chatId).then((res) => setMsgs(res.data));
-    }
-  }, [chatId, userData]);
+  const chatId = currentChat.id;
+  const { data: msgs, isLoading } = useQuery({
+    queryFn: () => getMessagesOfChat(userData, chatId).then((res) => res.data),
+    queryKey: ["Messages", chatId, userData],
+  });
 
   useEffect(() => {
     if (msgs !== null) bottomRef.current!.scrollIntoView();
   }, [msgs]);
+
+  if (isLoading) {
+    return <SkeletonLoader ref={bottomRef} />;
+  }
 
   return (
     <>
@@ -36,7 +40,7 @@ export default function ChatMessages({
           scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
         }}
       >
-        {msgs !== null && msgs.length > 0
+        {msgs !== undefined && msgs.length > 0
           ? msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
           : chatId !== undefined && (
               <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
@@ -82,5 +86,64 @@ export default function ChatMessages({
         </button>
       </form>
     </>
+  );
+}
+
+function SkeletonLoader({ ref }: { ref: React.RefObject<HTMLDivElement | null> }) {
+  const N = 5;
+  const messages = [<IncomingMessageSkeleton key={0} />, <OutgoingMessageSkeleton key={1} />];
+  const ran = Math.floor(Math.random() * (N - 2));
+
+  for (let i = 0; i < ran; i++) {
+    messages.push(<IncomingMessageSkeleton key={2 + i} />);
+  }
+  for (let i = 0; i < N - ran - 2; i++) {
+    messages.push(<OutgoingMessageSkeleton key={2 + ran + i} />);
+  }
+
+  for (let i = 0; i < N; i++) {
+    const j = Math.floor(Math.random() * N);
+    [messages[i], messages[j]] = [messages[j], messages[i]];
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto px-6 py-4 pb-0 space-y-4 overflow-hidden">
+      {messages}
+      <div ref={ref} />
+    </div>
+  );
+}
+
+function IncomingMessageSkeleton() {
+  return (
+    <div className="animate-pulse grid grid-cols-[auto_1fr_auto] items-center gap-x-2 text-transparent">
+      <div className="col-start-2 row-start-1 flex gap-1 items-center ml-3 text-sm">
+        <span className="rounded-full bg-primary-300/60">Username</span>
+        <span className="rounded-full bg-primary-300/30">8:00 AM</span>
+      </div>
+      <div className="col-start-1 row-start-2">
+        <div className="size-12 rounded-full bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center font-bold shadow" />
+      </div>
+      <div className="col-start-2 row-start-2 px-4 py-2 rounded-2xl shadow-md bg-white/60 flex flex-col mr-auto">
+        <div className="break-words">This is a message for the skeleton loader.</div>
+      </div>
+    </div>
+  );
+}
+
+function OutgoingMessageSkeleton() {
+  return (
+    <div className="animate-pulse grid grid-cols-[auto_1fr_auto] items-center gap-x-2 text-transparent">
+      <div className="col-start-2 row-start-1 flex gap-1 items-center justify-self-end mr-3 text-sm">
+        <span className="rounded-full bg-primary-300/30">8:00 AM</span>
+        <span className="rounded-full bg-primary-300/60">Person</span>
+      </div>
+      <div className="col-start-3 row-start-2">
+        <div className="size-12 rounded-full bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center font-bold shadow" />
+      </div>
+      <div className="col-start-2 row-start-2 px-4 py-2 rounded-2xl shadow-md bg-white/60 flex flex-col ml-auto">
+        <div className="break-words">This is a message for the skeleton loader.</div>
+      </div>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ const URL = "http://localhost:3000";
 /**
  * Fetches the messages of a specific chat by its ID.
  *
+ * @param user - The user payload containing the user's token.
  * @param chatId - The ID of the chat to fetch messages for.
  * @returns A promise that resolves to an `APIResponse` containing the list of messages.
  * @throws If the request fails or the response is not ok.
@@ -26,9 +27,6 @@ export async function getMessagesOfChat(user: UserPayload, chatId: number) {
  * @throws If the request fails or the response is not ok.
  */
 export async function getChats(user: UserPayload) {
-  // throw new Error("getChats is not implemented yet");
-  
-  await new Promise((resolve) => setTimeout(resolve, 1500)); 
   const res = await fetch(`${URL}/api/chat`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -61,8 +59,7 @@ export async function verify(token: string) {
  *
  * @param username - The username of the user.
  * @param password - The user's password.
- * @returns A promise that resolves to an `APIResponse<UserPayload>` on success,
- *          or a `LoginError` object on failure.
+ * @returns A promise that resolves to an `APIResponse<UserPayload>` on success or a `LoginError` object on failure.
  * @throws If the server responds with a status code >= 500.
  */
 export async function login(username: string, password: string) {
@@ -96,7 +93,7 @@ export async function register(username: string, password: string) {
   });
 
   if (res.status >= 500) {
-    throw new Error("Login failed, server error.");
+    throw new Error("Register failed, server error.");
   }
 
   return (await res.json()) as APISuccess | RegisterError;
