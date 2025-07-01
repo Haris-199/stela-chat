@@ -1,9 +1,9 @@
 import Message from "./Message";
-import { Chat, getMessagesOfChat, UserPayload } from "../services/api";
-import { useEffect, useRef, useState } from "react";
+import { Chat, createMessageInChat, getMessagesOfChat, UserPayload } from "../services/api";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { Smile, Send } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function ChatMessages({
   userData,
@@ -12,15 +12,42 @@ export default function ChatMessages({
   userData: UserPayload;
   currentChat: Chat;
 }) {
+  const chatId = currentChat.id;
+
   const [emojiPanelOpen, setEmojiPanelOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const queryClient = useQueryClient();
 
-  const chatId = currentChat.id;
   const { data: msgs, isLoading } = useQuery({
     queryFn: () => getMessagesOfChat(userData, chatId).then((res) => res.data),
     queryKey: ["Messages", chatId, userData],
   });
+
+  const { mutate } = useMutation({
+    mutationFn: () => createMessageInChat(userData, chatId, textInput),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] }),
+  });
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (textInput.trim() === "") {
+      setTextInput("");
+      inputRef.current?.focus();
+      return;
+    }
+    
+    try {
+      await mutate();
+      setTextInput("");
+      inputRef.current?.focus();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (msgs !== null) bottomRef.current!.scrollIntoView();
@@ -49,7 +76,7 @@ export default function ChatMessages({
       </div>
 
       {/* Input */}
-      <form className="p-4 pr-6 flex gap-2 items-center">
+      <form onSubmit={handleSubmit} ref={formRef} className="p-4 pr-6 flex gap-2 items-center">
         <button
           type="button"
           className={`p-2 rounded-full text-primary-400 relative hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
@@ -73,13 +100,13 @@ export default function ChatMessages({
           className="no-scrollbar bg-white overflow-visible resize-none grow px-4 py-2 border-primary-400 text-wrap rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
           placeholder="Type your message..."
           value={textInput}
+          ref={inputRef}
           onChange={(e) => setTextInput(e.target.value)}
           rows={1}
         />
         <button
           type="submit"
           className="p-2 size-10 relative rounded-full bg-gradient-to-br from-primary-400 to-primary-500 text-white font-semibold hover:from-primary-500 hover:to-primary-600 transition-colors disabled:opacity-60"
-          disabled
           title="Send"
         >
           <Send size={24} className="absolute top-[22%] left-[18%]" />

@@ -1,14 +1,39 @@
 const URL = "http://localhost:3000";
 
 /**
+ * Creates a message in a specific chat.
+
+ * @param user - The user payload containing the user's token.
+ * @param chatId - The ID of the chat to create the message in.
+ * @param message - The text of the message to create.
+ * @returns A promise that resolves to an `APISuccess`.
+ * @throws If the request fails or the response is not ok.
+ */
+export async function createMessageInChat(user: UserPayload, chatId: number, message: string) {
+  await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate network delay
+  const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+    body: JSON.stringify({ message }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to create message");
+  }
+
+  return (await res.json()) as APISuccess;
+}
+
+/**
  * Fetches the messages of a specific chat by its ID.
  *
  * @param user - The user payload containing the user's token.
  * @param chatId - The ID of the chat to fetch messages for.
- * @returns A promise that resolves to an `APIResponse` containing the list of messages.
+ * @returns A promise that resolves to an `APIResponse<Message[]>` containing the list of messages.
  * @throws If the request fails or the response is not ok.
  */
 export async function getMessagesOfChat(user: UserPayload, chatId: number) {
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
