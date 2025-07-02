@@ -1,6 +1,6 @@
 import Message from "./Message";
 import { Chat, createMessageInChat, getMessagesOfChat, UserPayload } from "../services/api";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { Smile, Send } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -59,6 +59,13 @@ export default function ChatMessages({
     }
   };
 
+  const handleKeyDown = async (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      formRef.current?.requestSubmit();
+    }
+  };
+
   if (getError !== null) {
     navigate("/500");
     console.error(getError);
@@ -83,13 +90,20 @@ export default function ChatMessages({
         ) : (
           <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
         )}
-
         <div ref={bottomRef} />
       </div>
 
       {/* Input */}
       <form onSubmit={handleSubmit} ref={formRef} className="p-4 pr-6 flex gap-2 items-center relative">
-        <div className={"absolute bottom-18 left-4 z-20 w-10 bg:red"}>
+        <div
+          className={"absolute bottom-18 left-4 z-20 w-10 bg:red"}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setEmojiPanelOpen(false);
+              inputRef.current!.focus();
+            }
+          }}
+        >
           <EmojiPicker
             emojiStyle={EmojiStyle.NATIVE}
             width={300}
@@ -100,7 +114,7 @@ export default function ChatMessages({
         </div>
         <button
           type="button"
-          className={`p-2 rounded-full text-primary-400 relative hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
+          className={`p-2 rounded-full text-primary-400 hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
             emojiPanelOpen ? "bg-primary-100" : ""
           }`}
           title="Add emoji"
@@ -114,6 +128,7 @@ export default function ChatMessages({
           value={textInput}
           ref={inputRef}
           onChange={(e) => setTextInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           rows={1}
         />
         <button
