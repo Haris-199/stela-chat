@@ -23,7 +23,11 @@ export default function ChatMessages({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: msgs, isLoading, error: getError } = useQuery({
+  const {
+    data: msgs,
+    isLoading,
+    error: getError,
+  } = useQuery({
     queryFn: () => getMessagesOfChat(userData, chatId).then((res) => res.data),
     queryKey: ["Messages", chatId, userData],
   });
@@ -74,16 +78,26 @@ export default function ChatMessages({
           scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
         }}
       >
-        {msgs !== undefined && msgs.length > 0
-          ? msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
-          : chatId !== undefined && (
-              <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
-            )}
+        {msgs !== undefined && msgs.length > 0 ? (
+          msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
+        ) : (
+          <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
+        )}
+
         <div ref={bottomRef} />
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} ref={formRef} className="p-4 pr-6 flex gap-2 items-center">
+      <form onSubmit={handleSubmit} ref={formRef} className="p-4 pr-6 flex gap-2 items-center relative">
+        <div className={"absolute bottom-18 left-4 z-20 w-10 bg:red"}>
+          <EmojiPicker
+            emojiStyle={EmojiStyle.NATIVE}
+            width={300}
+            open={emojiPanelOpen}
+            onEmojiClick={(emojiData) => setTextInput((prevText) => prevText + emojiData.emoji)}
+            lazyLoadEmojis
+          />
+        </div>
         <button
           type="button"
           className={`p-2 rounded-full text-primary-400 relative hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
@@ -93,15 +107,6 @@ export default function ChatMessages({
           onClick={() => setEmojiPanelOpen(!emojiPanelOpen)}
         >
           <Smile size={25} />
-          <div className={"absolute bottom-14 left-0 z-20 w-10 bg:red"}>
-            <EmojiPicker
-              emojiStyle={EmojiStyle.NATIVE}
-              width={300}
-              open={emojiPanelOpen}
-              onEmojiClick={(emojiData) => setTextInput((prevText) => prevText + emojiData.emoji)}
-              lazyLoadEmojis
-            />
-          </div>
         </button>
         <textarea
           className="no-scrollbar bg-white overflow-visible resize-none grow px-4 py-2 border-primary-400 text-wrap rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
