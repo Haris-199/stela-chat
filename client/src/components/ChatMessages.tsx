@@ -38,7 +38,7 @@ export default function ChatMessages({
   });
 
   useEffect(() => {
-    if (msgs !== null) bottomRef.current!.scrollIntoView();
+    if (msgs !== null && bottomRef.current !== null) bottomRef.current.scrollIntoView();
   }, [msgs]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -72,7 +72,7 @@ export default function ChatMessages({
   }
 
   if (isLoading) {
-    return <SkeletonLoader ref={bottomRef} />;
+    return <SkeletonLoader />;
   }
 
   return (
@@ -94,7 +94,11 @@ export default function ChatMessages({
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} ref={formRef} className="p-4 pr-6 flex gap-2 items-center relative">
+      <form
+        onSubmit={handleSubmit}
+        ref={formRef}
+        className="p-4 pr-6 flex gap-2 items-center relative"
+      >
         <div
           className={"absolute bottom-18 left-4 z-20 w-10 bg:red"}
           onKeyDown={(e) => {
@@ -144,7 +148,7 @@ export default function ChatMessages({
   );
 }
 
-function SkeletonLoader({ ref }: { ref: React.RefObject<HTMLDivElement | null> }) {
+function SkeletonLoader() {
   const N = 5;
   const messages = [<IncomingMessageSkeleton key={0} />, <OutgoingMessageSkeleton key={1} />];
   const ran = Math.floor(Math.random() * (N - 2));
@@ -164,7 +168,6 @@ function SkeletonLoader({ ref }: { ref: React.RefObject<HTMLDivElement | null> }
   return (
     <div className="flex-1 overflow-y-auto px-6 py-4 pb-0 space-y-4 overflow-hidden">
       {messages}
-      <div ref={ref} />
     </div>
   );
 }
