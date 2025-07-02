@@ -10,7 +10,8 @@ const URL = "http://localhost:3000";
  * @throws If the request fails or the response is not ok.
  */
 export async function createMessageInChat(user: UserPayload, chatId: number, message: string) {
-  await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate network delay
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  // throw new Error("fail");
   const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },

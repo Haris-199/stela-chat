@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { Smile, Send } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatMessages({
   userData,
@@ -19,39 +20,45 @@ export default function ChatMessages({
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: msgs, isLoading } = useQuery({
+  const { data: msgs, isLoading, error: getError } = useQuery({
     queryFn: () => getMessagesOfChat(userData, chatId).then((res) => res.data),
     queryKey: ["Messages", chatId, userData],
   });
 
-  const { mutate } = useMutation({
+  const { mutateAsync, isPending: sendingMessage } = useMutation({
     mutationFn: () => createMessageInChat(userData, chatId, textInput),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] }),
   });
+
+  useEffect(() => {
+    if (msgs !== null) bottomRef.current!.scrollIntoView();
+  }, [msgs]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (textInput.trim() === "") {
-      setTextInput("");
       inputRef.current?.focus();
       return;
     }
-    
+
     try {
-      await mutate();
-      setTextInput("");
       inputRef.current?.focus();
+      await mutateAsync();
+      setTextInput("");
     } catch (error) {
       console.error(error);
+      navigate("/500");
     }
   };
 
-  useEffect(() => {
-    if (msgs !== null) bottomRef.current!.scrollIntoView();
-  }, [msgs]);
+  if (getError !== null) {
+    navigate("/500");
+    console.error(getError);
+  }
 
   if (isLoading) {
     return <SkeletonLoader ref={bottomRef} />;
@@ -106,8 +113,9 @@ export default function ChatMessages({
         />
         <button
           type="submit"
-          className="p-2 size-10 relative rounded-full bg-gradient-to-br from-primary-400 to-primary-500 text-white font-semibold hover:from-primary-500 hover:to-primary-600 transition-colors disabled:opacity-60"
+          className="p-2 size-10 relative rounded-full bg-gradient-to-br from-primary-400 to-primary-500 cursor-pointer text-white font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-800 hover:from-primary-500 hover:to-primary-600 transition-colors disabled:opacity-60 disabled:hover:cursor-default"
           title="Send"
+          disabled={sendingMessage}
         >
           <Send size={24} className="absolute top-[22%] left-[18%]" />
         </button>
