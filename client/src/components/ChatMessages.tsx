@@ -17,7 +17,7 @@ export default function ChatMessages({
 
   const [emojiPanelOpen, setEmojiPanelOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messageListRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
@@ -38,7 +38,9 @@ export default function ChatMessages({
   });
 
   useEffect(() => {
-    if (msgs !== null && bottomRef.current !== null) bottomRef.current.scrollIntoView();
+    if (msgs !== null && messageListRef.current !== null) {
+      messageListRef.current.scroll({ top: messageListRef.current.scrollHeight });
+    }
   }, [msgs]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -79,18 +81,19 @@ export default function ChatMessages({
     <>
       {/* Messages */}
       <div
-        className="flex-1 overflow-y-auto px-6 py-4 pb-0 space-y-4 overflow-hidden"
+        className="flex-1 overflow-y-auto pl-6 pr-3 py-4 pb-0 space-y-4"
         style={{
           scrollbarWidth: "thin",
           scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
+          scrollbarGutter: "stable",
         }}
+        ref={messageListRef}
       >
         {msgs !== undefined && msgs.length > 0 ? (
           msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
         ) : (
           <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
