@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../db/client";
 
 export async function getChats(req: Request, res: Response, next: NextFunction) {
-const user = req.user!;
+  const user = req.user!;
 
   try {
     const chats = await prisma.chat.findMany({
@@ -13,6 +13,26 @@ const user = req.user!;
       success: true,
       message: `${user.username}'s chats retrieved successfully.`,
       data: chats,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function postChats(req: Request, res: Response, next: NextFunction) {
+  const user = req.user!;
+  const { name, users } = req.body;
+
+  try {
+    await prisma.chat.create({
+      data: {
+        name,
+        users: { connect: [user, ...users] },
+      },
+    });
+    res.status(201).json({
+      success: true, 
+      message: "Chat created successfully.",
     });
   } catch (error) {
     next(error);
