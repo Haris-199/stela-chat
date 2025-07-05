@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import CreateChatModal from "./CreateChatModal";
 
 export default function ChatSidebar({
   userData,
@@ -41,13 +42,7 @@ export default function ChatSidebar({
     <aside className="w-64 text-white bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 flex flex-col py-4 shadow-lg">
       <h2 className="px-6 mb-4 flex justify-between items-center text-primary-100">
         <p className="font-bold text-lg">Chats</p>
-        <button
-          className="flex flex-col items-center p-2 rounded-lg hover:bg-primary-700"
-          title="New Chat"
-        >
-          <Plus size={20} />
-          <span className="text-xs mt-1">New</span>
-        </button>
+        <CreateChatModal />
       </h2>
       <nav className="flex-1 flex flex-col gap-4 px-2 overflow-y-auto">
         {chats &&

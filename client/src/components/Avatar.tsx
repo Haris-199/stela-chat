@@ -9,6 +9,7 @@ export default function Avatar({
   letter: string;
   className?: string;
 }) {
+  // imgURL = `https://picsum.photos/${Math.floor(200+Math.random()*100)}`
   if (imgURL === undefined) {
     return (
       <div
