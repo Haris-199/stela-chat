@@ -105,10 +105,10 @@ export async function getChats(user: UserPayload) {
  * @param token - The JWT token to verify.
  * @returns A promise that resolves to `true` if the token is valid, or `false` otherwise.
  */
-export async function verify(token: string) {
+export async function verify(user: UserPayload) {
   const res = await fetch(`${URL}/api/auth/verify`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
   if (!res.ok) {
     return false;
