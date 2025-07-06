@@ -40,12 +40,17 @@ export default function ChatSidebar({
   }
 
   return (
-    <aside className="w-64 text-white bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 flex flex-col py-4 shadow-lg">
-      <h2 className="px-6 mb-4 flex justify-between items-center text-primary-100">
+    <aside className="w-64 text-white flex flex-col">
+      <h2 className=" px-6 py-1 flex justify-between items-center text-primary-100 bg-gradient-to-r from-primary-800 to-primary-700 shadow-md">
         <p className="font-bold text-lg">Chats</p>
         <CreateChatModal />
       </h2>
-      <nav className="flex-1 flex flex-col gap-4 px-2 overflow-y-auto">
+      <nav
+        className="bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 flex-1 flex flex-col gap-3 px-2 py-2 overflow-y-auto"
+        style={{
+          scrollbarColor: "var(--color-primary-700) var(--color-primary-600)",
+        }}
+      >
         {chats &&
           chats.map((chat) => (
             <Link
