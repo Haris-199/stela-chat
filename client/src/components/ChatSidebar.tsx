@@ -1,5 +1,6 @@
 import Avatar from "./Avatar";
-import { Chat, getChats, UserPayload } from "../services/api";
+import { getChats } from "../services/api";
+import { Chat, UserPayload } from "../types";
 import { Plus } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";

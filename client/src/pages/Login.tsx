@@ -1,9 +1,10 @@
 import { FormEvent, useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, LoginError } from "../services/api";
+import { login } from "../services/api";
 import { Lock, X, User2 } from "lucide-react";
 import { setItem } from "../services/localStorage";
 import AuthContext from "../contexts/AuthContext";
+import { LoginError } from "../types";
 
 export default function Login() {
   const [attempt, setAttempt] = useState<LoginError>();

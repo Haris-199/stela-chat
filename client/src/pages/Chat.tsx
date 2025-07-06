@@ -5,7 +5,7 @@ import ChatSidebar from "../components/ChatSidebar";
 import ChatHeader from "../components/ChatHeader";
 import ChatMessages from "../components/ChatMessages";
 import Options from "../components/Options";
-import { Chat as ChatType } from "../services/api";
+import { Chat as ChatType } from "../types";
 
 export default function Chat() {
   const { userData } = useContext(AuthContext);

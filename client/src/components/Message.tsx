@@ -1,5 +1,5 @@
 import Avatar from "./Avatar";
-import { Message as MessageType, UserPayload } from "../services/api";
+import { Message as MessageType, UserPayload } from "../types";
 
 export default function Message({ userData, msg }: { userData: UserPayload; msg: MessageType }) {
   const isOwn = userData && msg.sender.username === userData.user.username;

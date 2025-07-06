@@ -1,3 +1,14 @@
+import {
+  APIResponse,
+  APISuccess,
+  Chat,
+  ChatCreationError,
+  LoginError,
+  Message,
+  RegisterError,
+  UserPayload,
+} from "../types";
+
 const URL = "http://localhost:3000";
 
 /**
@@ -148,71 +159,4 @@ export async function register(username: string, password: string) {
   }
 
   return (await res.json()) as APISuccess | RegisterError;
-}
-
-export interface UserPayload {
-  token: string;
-  user: {
-    id: number;
-    username: string;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-}
-
-export interface Chat {
-  id: number;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  users: {
-    username: string;
-  }[];
-}
-
-export interface Message {
-  id: number;
-  chatId: number;
-  userId: number;
-  text: string;
-  createdAt: Date;
-  updatedAt: Date;
-  sender: {
-    username: string;
-  };
-}
-
-export interface APIResponse<T> {
-  success: true;
-  message: string;
-  data: T;
-}
-
-export interface APISuccess {
-  success: true;
-  message: string;
-}
-
-export interface LoginError {
-  success: false;
-  errors: {
-    username: string[];
-    password: string[];
-  };
-}
-
-export interface RegisterError {
-  success: false;
-  errors: {
-    username: string[];
-    password: string[];
-  };
-}
-
-export interface ChatCreationError {
-  success: false;
-  errors: {
-    name: string[];
-    users: string[];
-  };
 }

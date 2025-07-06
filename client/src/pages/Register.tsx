@@ -1,7 +1,8 @@
 import { Lock, User2, X } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register, RegisterError } from "../services/api";
+import { register } from "../services/api";
+import { RegisterError } from "../types";
 
 export default function Register() {
   const navigate = useNavigate();

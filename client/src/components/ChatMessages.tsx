@@ -1,5 +1,6 @@
 import Message from "./Message";
-import { Chat, createMessageInChat, getMessagesOfChat, UserPayload } from "../services/api";
+import { createMessageInChat, getMessagesOfChat } from "../services/api";
+import { Chat, UserPayload } from "../types";
 import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { Smile, Send } from "lucide-react";

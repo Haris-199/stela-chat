@@ -1,5 +1,5 @@
 import { createContext, Dispatch } from "react";
-import { UserPayload } from "../services/api";
+import { UserPayload } from "../types";
 
 const AuthContext = createContext<{
   userData?: UserPayload;
