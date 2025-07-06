@@ -5,6 +5,7 @@ import { createChat } from "../services/api";
 import AuthContext from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import Spinner from "./Spinner";
 
 export default function CreateChatModal() {
   const navigate = useNavigate();
@@ -72,21 +73,28 @@ export default function CreateChatModal() {
           <span className="text-sm font-medium text-black-700">Members</span>
           <UsersCheckbox defaultValues={data?.fieldData.users} />
           <div className="mt-auto flex gap-2 justify-center font-semibold">
-            <button
-              type="button"
-              className="px-4 py-2 rounded bg-gray-200 text-primary-700 hover:bg-gray-300"
-              onClick={() => dialogRef.current?.close()}
-              formMethod="dialog"
-              disabled={isPending}
-            >
-              Cancel
-            </button>
+            {!isPending && (
+              <button
+                type="button"
+                className="px-4 py-2 rounded bg-gray-200 text-primary-700 hover:bg-gray-300 cursor-pointer"
+                onClick={() => dialogRef.current?.close()}
+                formMethod="dialog"
+              >
+                Cancel
+              </button>
+            )}
             <button
               type="submit"
-              className="px-4 py-2 rounded bg-primary-600 text-white hover:bg-primary-700"
+              className="px-4 py-2 rounded bg-primary-600 text-white hover:bg-primary-700 cursor-pointer disabled:cursor-default disabled:hover:bg-primary-600"
               disabled={isPending}
             >
-              Create
+              {isPending ? (
+                <div className="flex gap-1">
+                  Creating <Spinner />
+                </div>
+              ) : (
+                "Create"
+              )}
             </button>
           </div>
         </form>
