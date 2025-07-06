@@ -1,9 +1,38 @@
 import { Plus, User2, MessageCircle, Users2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useActionState, useContext, useRef, useState } from "react";
 import Avatar from "./Avatar";
+import { createChat } from "../services/api";
+import AuthContext from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function CreateChatModal() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const { userData } = useContext(AuthContext);
+  const [data, action, isPending] = useActionState(createChatAction, undefined);
+
+  async function createChatAction(_previous: unknown, formData: FormData) {
+    const name = formData.get("name") as string;
+    const users = formData.getAll("users") as string[];
+
+    if (users.length === 0) return { fieldData: { name, users } };
+
+    try {
+      const res = await createChat(userData!, name, users);
+
+      if (!res.success) {
+        return { fieldData: { name, users } };
+      }
+
+      queryClient.refetchQueries({ queryKey: ["chats", userData] });
+      dialogRef.current?.close();
+    } catch (error) {
+      console.error(error);
+      navigate("/500");
+    }
+  }
 
   return (
     <>
@@ -19,7 +48,7 @@ export default function CreateChatModal() {
         ref={dialogRef}
         className="backdrop:brightness-10 rounded-xl left-[calc(50%-min(400px,90%)/2)] top-[calc(50%-475px/2)] w-[min(400px,90%)] h-[475px] overflow-y-hidden shadow-lg p-0 border-0"
       >
-        <form method="dialog" className="bg-white rounded-xl p-6 flex flex-col gap-3">
+        <form action={action} className="bg-white rounded-xl p-6 flex flex-col gap-3">
           <h1 className="text-3xl font-bold text-center text-primary-700 mb-1">New Chat</h1>
           <div className="flex flex-col items-stretch gap-1">
             <label htmlFor="name">
@@ -33,6 +62,7 @@ export default function CreateChatModal() {
                 id="name"
                 name="name"
                 type="text"
+                defaultValue={data?.fieldData.name}
                 className="w-full border border-primary-200 rounded pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="Enter chat name"
                 required
@@ -40,19 +70,21 @@ export default function CreateChatModal() {
             </div>
           </div>
           <span className="text-sm font-medium text-black-700">Members</span>
-          <UsersCheckbox />
+          <UsersCheckbox defaultValues={data?.fieldData.users} />
           <div className="mt-auto flex gap-2 justify-center font-semibold">
             <button
               type="button"
               className="px-4 py-2 rounded bg-gray-200 text-primary-700 hover:bg-gray-300"
               onClick={() => dialogRef.current?.close()}
               formMethod="dialog"
+              disabled={isPending}
             >
               Cancel
             </button>
             <button
               type="submit"
               className="px-4 py-2 rounded bg-primary-600 text-white hover:bg-primary-700"
+              disabled={isPending}
             >
               Create
             </button>
@@ -63,7 +95,7 @@ export default function CreateChatModal() {
   );
 }
 
-function UsersCheckbox() {
+function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined }) {
   const users = [
     { username: "slab" },
     { username: "derby" },
@@ -116,7 +148,9 @@ function UsersCheckbox() {
               type="checkbox"
               id={`user-${user.username}`}
               name="users"
+              value={user.username}
               className="accent-primary-500"
+              defaultChecked={defaultValues?.includes(user.username)}
             />
           </label>
         ))}

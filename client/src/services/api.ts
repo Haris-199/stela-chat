@@ -1,6 +1,31 @@
 const URL = "http://localhost:3000";
 
 /**
+ * Creates a new chat with the specified name and users.
+ *
+ * @param user - The user payload containing the user's token.
+ * @param name - The name of the chat to create.
+ * @param users - An array of usernames to add to the chat.
+ * @returns A promise that resolves to an `APIResponse<Chat>` containing the created chat.
+ * @throws If the request fails or the response is not ok.
+ */
+export async function createChat(user: UserPayload, name: string, users: string[]) {
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  // throw new Error("fail");
+  const res = await fetch(`${URL}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+    body: JSON.stringify({ name, users: users.map((username) => ({ username })) }),
+  });
+
+  if (res.status >= 500) {
+    throw new Error("Failed to create chat, server error.");
+  }
+
+  return (await res.json()) as APISuccess | ChatCreationError;
+}
+
+/**
  * Creates a message in a specific chat.
 
  * @param user - The user payload containing the user's token.
@@ -19,7 +44,7 @@ export async function createMessageInChat(user: UserPayload, chatId: number, mes
   });
 
   if (!res.ok) {
-    throw new Error("Failed to create message");
+    throw new Error("Failed to create message.");
   }
 
   return (await res.json()) as APISuccess;
@@ -40,7 +65,7 @@ export async function getMessagesOfChat(user: UserPayload, chatId: number) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
   if (!res.ok) {
-    throw new Error("Failed to fetch messages for chat");
+    throw new Error("Failed to fetch messages for chat.");
   }
   return (await res.json()) as APIResponse<Message[]>;
 }
@@ -58,7 +83,7 @@ export async function getChats(user: UserPayload) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
   if (!res.ok) {
-    throw new Error("Failed to fetch chats");
+    throw new Error("Failed to fetch chats.");
   }
   return (await res.json()) as APIResponse<Chat[]>;
 }
@@ -181,5 +206,13 @@ export interface RegisterError {
   errors: {
     username: string[];
     password: string[];
+  };
+}
+
+export interface ChatCreationError {
+  success: false;
+  errors: {
+    name: string[];
+    users: string[];
   };
 }
