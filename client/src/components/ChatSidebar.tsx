@@ -75,8 +75,8 @@ export default function ChatSidebar({
 
 function SkeletonLoader() {
   return (
-    <aside className="w-64 text-white bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 flex flex-col py-4 shadow-lg">
-      <h2 className="px-6 mb-4 flex justify-between items-center text-primary-100">
+    <aside className="w-64 text-white bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 flex flex-col shadow-lg">
+      <h2 className="px-6 py-1 flex justify-between items-center text-primary-100 bg-gradient-to-r from-primary-800 to-primary-700 shadow-md">
         <p className="font-bold text-lg">Chats</p>
         <button
           className="flex flex-col items-center p-2 rounded-lg hover:bg-primary-700"
@@ -86,7 +86,7 @@ function SkeletonLoader() {
           <span className="text-xs mt-1">New</span>
         </button>
       </h2>
-      <nav className="flex-1 flex flex-col gap-4 px-2 overflow-y-auto">
+      <nav className="flex-1 flex flex-col gap-3 px-2 overflow-y-auto bg-radial-[at_0%_-50%] from-primary-900 to-primary-700 py-2">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}

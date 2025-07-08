@@ -157,11 +157,11 @@ function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined 
         </button>
       </div>
       <div
-        className="overflow-y-auto p-4 pr-1 pt-2 rounded-b-xl bg-gradient-to-br from-primary-300 to-primary-400"
+        className="overflow-y-auto rounded-b-xl bg-gradient-to-br from-primary-300 to-primary-400"
         style={{
           scrollbarWidth: "thin",
           scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
-          scrollbarGutter: "stable",
+          // scrollbarGutter: "stable",
         }}
       >
         {isPending || list === undefined ? (
@@ -171,7 +171,7 @@ function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined 
             <label
               key={user.username}
               htmlFor={`user-${user.username}`}
-              className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 border border-primary-200 cursor-pointer transition-colors shadow-sm"
+              className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 not-last:border-b border-primary-200 cursor-pointer transition-colors shadow-sm"
             >
               <span className="font-medium flex items-center gap-2 text-primary-800">
                 <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
