@@ -161,33 +161,37 @@ function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined 
         style={{
           scrollbarWidth: "thin",
           scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
-          // scrollbarGutter: "stable",
         }}
       >
-        {isPending || list === undefined ? (
-          <h1>Loading</h1>
-        ) : (
-          list.map((user) => (
-            <label
-              key={user.username}
-              htmlFor={`user-${user.username}`}
-              className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 not-last:border-b border-primary-200 cursor-pointer transition-colors shadow-sm"
-            >
-              <span className="font-medium flex items-center gap-2 text-primary-800">
-                <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
-                {user.username}
-              </span>
-              <input
-                type="checkbox"
-                id={`user-${user.username}`}
-                name="users"
-                value={user.username}
-                className="accent-primary-500"
-                defaultChecked={defaultValues?.includes(user.username)}
-              />
-            </label>
-          ))
-        )}
+        {isPending || list === undefined
+          ? [1, 2, 3].map(() => (
+              <div className="flex items-center justify-between px-3 py-2 bg-primary-100 not-last:border-b border-primary-200 ">
+                <div className="animate-pulse flex items-center gap-2">
+                  <div className="rounded-full size-8 bg-primary-300" />
+                  <div className="w-25 h-3 rounded-xl bg-primary-300" />
+                </div>
+              </div>
+            ))
+          : list.map((user) => (
+              <label
+                key={user.username}
+                htmlFor={`user-${user.username}`}
+                className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 not-last:border-b border-primary-200 cursor-pointer transition-colors shadow-sm"
+              >
+                <span className="font-medium flex items-center gap-2 text-primary-800">
+                  <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
+                  {user.username}
+                </span>
+                <input
+                  type="checkbox"
+                  id={`user-${user.username}`}
+                  name="users"
+                  value={user.username}
+                  className="accent-primary-500"
+                  defaultChecked={defaultValues?.includes(user.username)}
+                />
+              </label>
+            ))}
       </div>
     </div>
   );
