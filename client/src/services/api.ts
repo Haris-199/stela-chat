@@ -7,9 +7,29 @@ import {
   Message,
   RegisterError,
   UserPayload,
+  User,
 } from "../types";
 
 const URL = "http://localhost:3000";
+
+/**
+ * Fetches a list of all users from the backend.
+ *
+ * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of users.
+ * @throws If the request fails or the response is not ok.
+ */
+export async function getUser() {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // throw new Error("fail");
+  const res = await fetch(`${URL}/api/user`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch users.");
+  }
+  return (await res.json()) as APIResponse<User[]>;
+}
 
 /**
  * Creates a new chat with the specified name and users.

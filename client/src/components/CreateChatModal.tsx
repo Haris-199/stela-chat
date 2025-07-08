@@ -1,11 +1,12 @@
-import { Plus, User2, MessageCircle, Users2 } from "lucide-react";
 import { useActionState, useContext, useRef, useState } from "react";
-import Avatar from "./Avatar";
-import { createChat } from "../services/api";
-import AuthContext from "../contexts/AuthContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, User2, MessageCircle, Users2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import clsx from "clsx";
+import Avatar from "./Avatar";
 import Spinner from "./Spinner";
+import { createChat, getUser } from "../services/api";
+import AuthContext from "../contexts/AuthContext";
 
 export default function CreateChatModal() {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ export default function CreateChatModal() {
             >
               {isPending ? (
                 <div className="flex gap-1">
-                  Creating <Spinner />
+                  Creating... <Spinner />
                 </div>
               ) : (
                 "Create"
@@ -104,32 +105,53 @@ export default function CreateChatModal() {
 }
 
 function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined }) {
-  const users = [
-    { username: "slab" },
-    { username: "derby" },
-    { username: "echo" },
-    { username: "ivy" },
-    { username: "tater" },
-    { username: "dang" },
-  ];
-  const friends = [{ username: "derby" }, { username: "echo" }];
+  const [mode, setMode] = useState("friends");
+  const {
+    data: list,
+    refetch,
+    isPending,
+  } = useQuery({
+    queryKey: [mode],
+    queryFn: () => {
+      switch (mode) {
+        case "users":
+          return getUser().then((res) => res.data);
+        case "friends":
+        default:
+          return [{ username: "derby" }, { username: "echo" }];
+      }
+    },
+  });
 
-  const [list, setList] = useState(friends);
+  const buttonStyle =
+    "cursor-pointer flex items-center justify-center gap-2 p-2 bg-primary-600 hover:bg-primary-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400";
 
   return (
     <div className="flex flex-col max-h-50 mb-2 -mt-2 rounded-xl shadow-lg">
       <div className="text-white transition-colors grid grid-cols-2 gap-x-1 bg-primary-700 rounded-xl">
         <button
           type="button"
-          className="cursor-pointer flex items-center justify-center gap-2 p-2 rounded-tl-xl bg-primary-600 hover:bg-primary-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-          onClick={() => setList(friends)}
+          className={clsx("rounded-tl-xl", buttonStyle, {
+            "pointer-events-none bg-primary-700 cursor-default": mode === "friends",
+          })}
+          onClick={() => {
+            setMode("friends");
+            refetch();
+          }}
+          tabIndex={mode === "friends" ? -1 : undefined}
         >
           <User2 size={18} /> Friends
         </button>
         <button
           type="button"
-          className="cursor-pointer flex items-center justify-center gap-2 p-2 rounded-tr-xl bg-primary-600 hover:bg-primary-700 transition-colors font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-          onClick={() => setList(users)}
+          className={clsx("rounded-tr-xl", buttonStyle, {
+            "pointer-events-none bg-primary-700 cursor-default": mode === "users",
+          })}
+          onClick={() => {
+            setMode("users");
+            refetch();
+          }}
+          tabIndex={mode === "users" ? -1 : undefined}
         >
           <Users2 size={18} /> All Users
         </button>
@@ -142,26 +164,30 @@ function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined 
           scrollbarGutter: "stable",
         }}
       >
-        {list.map((user) => (
-          <label
-            key={user.username}
-            htmlFor={`user-${user.username}`}
-            className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 border border-primary-200 cursor-pointer transition-colors shadow-sm"
-          >
-            <span className="font-medium flex items-center gap-2 text-primary-800">
-              <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
-              {user.username}
-            </span>
-            <input
-              type="checkbox"
-              id={`user-${user.username}`}
-              name="users"
-              value={user.username}
-              className="accent-primary-500"
-              defaultChecked={defaultValues?.includes(user.username)}
-            />
-          </label>
-        ))}
+        {isPending || list === undefined ? (
+          <h1>Loading</h1>
+        ) : (
+          list.map((user) => (
+            <label
+              key={user.username}
+              htmlFor={`user-${user.username}`}
+              className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 border border-primary-200 cursor-pointer transition-colors shadow-sm"
+            >
+              <span className="font-medium flex items-center gap-2 text-primary-800">
+                <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
+                {user.username}
+              </span>
+              <input
+                type="checkbox"
+                id={`user-${user.username}`}
+                name="users"
+                value={user.username}
+                className="accent-primary-500"
+                defaultChecked={defaultValues?.includes(user.username)}
+              />
+            </label>
+          ))
+        )}
       </div>
     </div>
   );
