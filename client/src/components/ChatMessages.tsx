@@ -80,9 +80,8 @@ export default function ChatMessages({
 
   return (
     <>
-      {/* Messages */}
       <div
-        className="flex-1 overflow-y-auto pl-6 pr-3 py-4 pb-0 space-y-4"
+        className="grow flex flex-col overflow-y-auto pl-6 pr-3 pt-4 space-y-4 relative"
         style={{
           scrollbarWidth: "thin",
           scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
@@ -90,64 +89,68 @@ export default function ChatMessages({
         }}
         ref={messageListRef}
       >
-        {msgs !== undefined && msgs.length > 0 ? (
-          msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
-        ) : (
-          <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
-        )}
-      </div>
-
-      {/* Input */}
-      <form
-        onSubmit={handleSubmit}
-        ref={formRef}
-        className="p-4 pr-6 flex gap-2 items-center relative"
-      >
-        <div
-          className={"absolute bottom-18 left-4 z-20 w-10 bg:red"}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              setEmojiPanelOpen(false);
-              inputRef.current!.focus();
-            }
-          }}
-        >
-          <EmojiPicker
-            emojiStyle={EmojiStyle.NATIVE}
-            width={300}
-            open={emojiPanelOpen}
-            onEmojiClick={(emojiData) => setTextInput((prevText) => prevText + emojiData.emoji)}
-            lazyLoadEmojis
-          />
+        {/* Messages */}
+        <div className="grow flex flex-col space-y-4 relative">
+          {msgs !== undefined && msgs.length > 0 ? (
+            msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
+          ) : (
+            <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
+          )}
         </div>
-        <button
-          type="button"
-          className={`p-2 rounded-full text-primary-400 hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
-            emojiPanelOpen ? "bg-primary-100" : ""
-          }`}
-          title="Add emoji"
-          onClick={() => setEmojiPanelOpen(!emojiPanelOpen)}
+
+        {/* Input */}
+        <form
+          onSubmit={handleSubmit}
+          ref={formRef}
+          className="sticky w-full left-0 bottom-0 py-4 px-1 flex gap-2 items-center bg-clip-border before:bg-primary-200/60 before:absolute before:blur-sm before:size-full before:-z-10"
         >
-          <Smile size={25} />
-        </button>
-        <textarea
-          className="no-scrollbar bg-white overflow-visible resize-none grow px-4 py-2 border-primary-400 text-wrap rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-          placeholder="Type your message..."
-          value={textInput}
-          ref={inputRef}
-          onChange={(e) => setTextInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={1}
-        />
-        <button
-          type="submit"
-          className="p-2 size-10 relative rounded-full bg-gradient-to-br from-primary-400 to-primary-500 cursor-pointer text-white font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-800 hover:from-primary-500 hover:to-primary-600 transition-colors disabled:opacity-60 disabled:hover:cursor-default"
-          title="Send"
-          disabled={sendingMessage}
-        >
-          <Send size={24} className="absolute top-[22%] left-[18%]" />
-        </button>
-      </form>
+          <div
+            className={"absolute bottom-18 left-0 z-20 w-10"}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setEmojiPanelOpen(false);
+                inputRef.current!.focus();
+              }
+            }}
+            style={{ scrollbarColor: "var(--color-gray-400) transparent" }}
+          >
+            <EmojiPicker
+              emojiStyle={EmojiStyle.NATIVE}
+              width={300}
+              open={emojiPanelOpen}
+              onEmojiClick={(emojiData) => setTextInput((prevText) => prevText + emojiData.emoji)}
+              lazyLoadEmojis
+            />
+          </div>
+          <button
+            type="button"
+            className={`p-2 rounded-full text-primary-100 bg-gradient-to-br from-primary-400 to-primary-500 hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 ${
+              emojiPanelOpen ? "bg-none bg-primary-100 text-primary-400" : ""
+            }`}
+            title="Add emoji"
+            onClick={() => setEmojiPanelOpen(!emojiPanelOpen)}
+          >
+            <Smile size={25} />
+          </button>
+          <textarea
+            className="no-scrollbar bg-white overflow-visible resize-none grow px-4 py-2 border-primary-400 text-wrap rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+            placeholder="Type your message..."
+            value={textInput}
+            ref={inputRef}
+            onChange={(e) => setTextInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows={1}
+          />
+          <button
+            type="submit"
+            className="p-2 size-10 relative rounded-full bg-gradient-to-br from-primary-400 to-primary-500 cursor-pointer text-white font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-800 hover:from-primary-500 hover:to-primary-600 transition-colors disabled:opacity-60 disabled:hover:cursor-default"
+            title="Send"
+            disabled={sendingMessage}
+          >
+            <Send size={24} className="absolute top-[22%] left-[18%]" />
+          </button>
+        </form>
+      </div>
     </>
   );
 }

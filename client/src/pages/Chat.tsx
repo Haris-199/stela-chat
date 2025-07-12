@@ -21,7 +21,7 @@ export default function Chat() {
     <div className="flex h-screen">
       <Options />
       <ChatSidebar userData={userData} chatId={Number(chatId)} setCurrentChat={setCurrentChat} />
-      <main className="flex-1 flex flex-col bg-gradient-to-br from-primary-100 via-primary-200 to-primary-100">
+      <main className="grow flex flex-col bg-gradient-to-br from-primary-100 via-primary-200 to-primary-100 relative">
         <ChatHeader currentChat={currentChat} />
         {currentChat && <ChatMessages userData={userData} currentChat={currentChat} />}
       </main>
