@@ -35,7 +35,7 @@ export default function ChatSidebar({
   }
 
   return (
-    <aside className="w-80 text-white flex flex-col">
+    <aside className="w-80 text-white hidden lg:flex flex-col">
       <h2 className=" px-6 py-1 flex justify-between items-center text-primary-100 bg-gradient-to-r from-primary-800 to-primary-700 shadow-md">
         <p className="font-bold text-lg">Chats</p>
         <CreateChatModal />
