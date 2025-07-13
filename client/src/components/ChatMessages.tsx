@@ -19,7 +19,7 @@ export default function ChatMessages({
   const [emojiPanelOpen, setEmojiPanelOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
   const messageListRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -44,16 +44,20 @@ export default function ChatMessages({
     }
   }, [msgs]);
 
+  useEffect(() => {
+    if (!emojiPanelOpen) textAreaRef.current?.focus();
+  }, [emojiPanelOpen]);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (textInput.trim() === "") {
-      inputRef.current?.focus();
+      textAreaRef.current?.focus();
       return;
     }
 
     try {
-      inputRef.current?.focus();
+      textAreaRef.current?.focus();
       await mutateAsync();
       setTextInput("");
     } catch (error) {
@@ -105,26 +109,26 @@ export default function ChatMessages({
           className="sticky w-full left-0 bottom-0 py-4 px-1 flex gap-2 items-center bg-clip-border before:bg-primary-200/60 before:absolute before:blur-sm before:size-full before:-z-10"
         >
           <div
-            className={"absolute bottom-18 left-0 z-20 w-10"}
+            className={"absolute bottom-18 left-0 z-20 w-full"}
+            style={{ scrollbarColor: "var(--color-gray-400) transparent" }}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
                 setEmojiPanelOpen(false);
-                inputRef.current!.focus();
+                setTimeout(() => textAreaRef.current?.focus(), 0);
               }
             }}
-            style={{ scrollbarColor: "var(--color-gray-400) transparent" }}
           >
             <EmojiPicker
+              lazyLoadEmojis
               emojiStyle={EmojiStyle.NATIVE}
               width={300}
               open={emojiPanelOpen}
               onEmojiClick={(emojiData) => setTextInput((prevText) => prevText + emojiData.emoji)}
-              lazyLoadEmojis
             />
           </div>
           <button
             type="button"
-            className={`p-2 rounded-full text-primary-100 bg-gradient-to-br from-primary-400 to-primary-500 hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 ${
+            className={`p-2 rounded-full text-primary-100 bg-gradient-to-br from-primary-400 to-primary-500 hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 hover:from-primary-500 hover:to-primary-600 ${
               emojiPanelOpen ? "bg-none bg-primary-100 text-primary-400" : ""
             }`}
             title="Add emoji"
@@ -136,7 +140,7 @@ export default function ChatMessages({
             className="no-scrollbar bg-white overflow-visible resize-none grow px-4 py-2 border-primary-400 text-wrap rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
             placeholder="Type your message..."
             value={textInput}
-            ref={inputRef}
+            ref={textAreaRef}
             onChange={(e) => setTextInput(e.target.value)}
             onKeyDown={handleKeyDown}
             rows={1}

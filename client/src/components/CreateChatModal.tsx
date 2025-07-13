@@ -164,8 +164,8 @@ function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined 
         }}
       >
         {isPending || list === undefined
-          ? [1, 2, 3].map(() => (
-              <div className="flex items-center justify-between px-3 py-2 bg-primary-100 not-last:border-b border-primary-200 ">
+          ? [1, 2, 3].map((n) => (
+              <div key={n} className="flex items-center justify-between px-3 py-2 bg-primary-100 not-last:border-b border-primary-200 ">
                 <div className="animate-pulse flex items-center gap-2">
                   <div className="rounded-full size-8 bg-primary-300" />
                   <div className="w-25 h-3 rounded-xl bg-primary-300" />
