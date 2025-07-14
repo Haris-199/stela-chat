@@ -16,6 +16,22 @@ model User {
   updatedAt DateTime  @updatedAt
   messages  Message[]
   chats     Chat[]
+
+  friends  User[] @relation("UserFriends")
+  friendOf User[] @relation("UserFriends")
+
+  sentFriendRequests     FriendRequests[] @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequests[] @relation("ReceivedFriendRequests")
+}
+
+model FriendRequests {
+  id         Int  @id @default(autoincrement())
+  sender     User @relation("SentFriendRequests", fields: [senderId], references: [id])
+  senderId   Int
+  receiver   User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+  receiverId Int
+
+  @@unique([senderId, receiverId])
 }
 
 model Message {
