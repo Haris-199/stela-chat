@@ -1,12 +1,13 @@
 import { useActionState, useContext, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, User2, MessageCircle, Users2 } from "lucide-react";
+import { Plus, User2, MessageCircle, Users2, Frown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import Avatar from "./Avatar";
 import Spinner from "./Spinner";
-import { createChat, getUser } from "../services/api";
+import { createChat, getUsers, getUsersFriends } from "../services/api";
 import AuthContext from "../contexts/AuthContext";
+import { UserPayload } from "../types";
 
 export default function CreateChatModal() {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ export default function CreateChatModal() {
             </div>
           </div>
           <span className="text-sm font-medium text-black-700">Members</span>
-          <UsersCheckbox defaultValues={data?.fieldData.users} />
+          <UsersCheckbox userData={userData!} defaultValues={data?.fieldData.users} />
           <div className="mt-auto flex gap-2 justify-center font-semibold">
             {!isPending && (
               <button
@@ -104,8 +105,14 @@ export default function CreateChatModal() {
   );
 }
 
-function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined }) {
-  const [mode, setMode] = useState("friends");
+function UsersCheckbox({
+  userData,
+  defaultValues,
+}: {
+  userData: UserPayload;
+  defaultValues: string[] | undefined;
+}) {
+  const [mode, setMode] = useState<"friends" | "users">("friends");
   const {
     data: list,
     refetch,
@@ -115,10 +122,10 @@ function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined 
     queryFn: () => {
       switch (mode) {
         case "users":
-          return getUser().then((res) => res.data);
+          return getUsers().then((res) => res.data);
         case "friends":
         default:
-          return [{ username: "derby" }, { username: "echo" }];
+          return getUsersFriends(userData).then((res) => res.data);
       }
     },
   });
@@ -163,35 +170,50 @@ function UsersCheckbox({ defaultValues }: { defaultValues: string[] | undefined 
           scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
         }}
       >
-        {isPending || list === undefined
-          ? [1, 2, 3].map((n) => (
-              <div key={n} className="flex items-center justify-between px-3 py-2 bg-primary-100 not-last:border-b border-primary-200 ">
-                <div className="animate-pulse flex items-center gap-2">
-                  <div className="rounded-full size-8 bg-primary-300" />
-                  <div className="w-25 h-3 rounded-xl bg-primary-300" />
-                </div>
+        {isPending || list === undefined ? (
+          [1, 2, 3].map((n) => (
+            <div
+              key={n}
+              className="flex items-center justify-between px-3 py-2 bg-primary-100 not-last:border-b border-primary-200 "
+            >
+              <div className="animate-pulse flex items-center gap-2">
+                <div className="rounded-full size-8 bg-primary-300" />
+                <div className="w-25 h-3 rounded-xl bg-primary-300" />
               </div>
-            ))
-          : list.map((user) => (
-              <label
-                key={user.username}
-                htmlFor={`user-${user.username}`}
-                className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 not-last:border-b border-primary-200 cursor-pointer transition-colors shadow-sm"
-              >
-                <span className="font-medium flex items-center gap-2 text-primary-800">
-                  <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
-                  {user.username}
-                </span>
-                <input
-                  type="checkbox"
-                  id={`user-${user.username}`}
-                  name="users"
-                  value={user.username}
-                  className="accent-primary-500"
-                  defaultChecked={defaultValues?.includes(user.username)}
-                />
-              </label>
-            ))}
+            </div>
+          ))
+        ) : list.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-6 text-white">
+            <h1 className="text-xl font-semibold flex items-center">
+              {mode === "friends" ? (
+                <>No friends found <Frown size={28} className="ml-3" /></>
+              ) : (
+                "No users found"
+              )}
+            </h1>
+          </div>
+        ) : (
+          list.map((user) => (
+            <label
+              key={user.username}
+              htmlFor={`user-${user.username}`}
+              className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 not-last:border-b border-primary-200 cursor-pointer transition-colors shadow-sm"
+            >
+              <span className="font-medium flex items-center gap-2 text-primary-800">
+                <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
+                {user.username}
+              </span>
+              <input
+                type="checkbox"
+                id={`user-${user.username}`}
+                name="users"
+                value={user.username}
+                className="accent-primary-500"
+                defaultChecked={defaultValues?.includes(user.username)}
+              />
+            </label>
+          ))
+        )}
       </div>
     </div>
   );

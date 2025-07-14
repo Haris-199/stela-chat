@@ -13,12 +13,31 @@ import {
 const URL = "http://localhost:3000";
 
 /**
+ * Fetches the friends of a user from the backend.
+ *
+ * @param user - The user payload containing the user's token and username.
+ * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of friends.
+ * @throws If the request fails or the response is not ok.
+ */
+export async function getUsersFriends(user: UserPayload) {
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  const res = await fetch(`${URL}/api/user/friend`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch friends of ${user.user.username}.`);
+  }
+  return (await res.json()) as APIResponse<User[]>;
+}
+
+/**
  * Fetches a list of all users from the backend.
  *
  * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of users.
  * @throws If the request fails or the response is not ok.
  */
-export async function getUser() {
+export async function getUsers() {
   await new Promise((resolve) => setTimeout(resolve, 3000));
   // throw new Error("fail");
   const res = await fetch(`${URL}/api/user`, {
