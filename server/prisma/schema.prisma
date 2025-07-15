@@ -20,15 +20,15 @@ model User {
   friends  User[] @relation("UserFriends")
   friendOf User[] @relation("UserFriends")
 
-  sentFriendRequests     FriendRequests[] @relation("SentFriendRequests")
-  receivedFriendRequests FriendRequests[] @relation("ReceivedFriendRequests")
+  sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
 }
 
-model FriendRequests {
+model FriendRequest {
   id         Int  @id @default(autoincrement())
-  sender     User @relation("SentFriendRequests", fields: [senderId], references: [id])
+  sender     User @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
   senderId   Int
-  receiver   User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id])
+  receiver   User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId Int
 
   @@unique([senderId, receiverId])
@@ -39,9 +39,9 @@ model Message {
   text      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  sender    User     @relation(fields: [userId], references: [id])
+  sender    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId    Int
 }
 
