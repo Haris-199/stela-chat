@@ -34,6 +34,11 @@ export interface Message {
   };
 }
 
+export interface FriendRequest {
+  id: number;
+  username: string;
+}
+
 export interface APIResponse<T> {
   success: true;
   message: string;
@@ -42,6 +47,11 @@ export interface APIResponse<T> {
 
 export interface APISuccess {
   success: true;
+  message: string;
+}
+
+export interface APIError {
+  success: false;
   message: string;
 }
 

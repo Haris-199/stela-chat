@@ -5,12 +5,96 @@ import {
   ChatCreationError,
   LoginError,
   Message,
+  FriendRequest,
   RegisterError,
   UserPayload,
   User,
+  APIError,
 } from "../types";
 
 const URL = "http://localhost:3000";
+
+/**
+ * Fetches the incoming friend requests for a user from the backend.
+ *
+ * @param user - The user payload containing the user's token and username.
+ * @returns A promise that resolves to an `APIResponse<FriendRequest[]>` containing a list of incoming friend requests or a `APIError`.
+ * @throws If the request fails or the server responds with a status code >= 500.
+ */
+export async function getIncomingFriendRequests(user: UserPayload) {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  const res = await fetch(`${URL}/api/user/friend/request`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+  });
+  if (res.status >= 500) {
+    throw new Error(`Failed to fetch incoming friend requests for ${user.user.username}.`);
+  }
+  return (await res.json()) as APIResponse<FriendRequest[] | APIError>;
+}
+
+/**
+ * Sends a friend request to another user.
+ *
+ * @param user - The user payload containing the user's token.
+ * @param receiver - The username of the user to send the friend request to.
+ * @returns A promise that resolves to an `APISuccess` or `APIError` object on success or an error message on failure.
+ * @throws If the request fails or the server responds with a status code >= 500.
+ */
+export async function sendFriendRequest(user: UserPayload, receiver: string) {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  const res = await fetch(`${URL}/api/user/friend/request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+    body: JSON.stringify({ receiver }),
+  });
+  if (res.status >= 500) {
+    throw new Error(`Failed to send friend request to ${receiver}.`);
+  }
+  return (await res.json()) as APISuccess | APIError;
+}
+
+/**
+ * Responds to a friend request by accepting or rejecting it.
+ *
+ * @param user - The user payload containing the user's token.
+ * @param requestId - The ID of the friend request to respond to.
+ * @param sender - The username of the user who sent the friend request.
+ * @returns A promise that resolves to an `APISuccess` object on success or an error message on failure.
+ * @throws If the request fails or the server responds with a status code >= 500.
+ */
+export async function acceptFriendRequest(user: UserPayload, requestId: number, sender: string) {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  const res = await fetch(`${URL}/api/user/friend/request/${requestId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+    body: JSON.stringify({ sender }),
+  });
+  if (res.status >= 500) {
+    throw new Error(`Failed to accept friend request ${requestId}.`);
+  }
+  return (await res.json()) as APISuccess | APIError;
+}
+
+/**
+ * Deletes a friend request by its ID.
+ * 
+ * @param user - The user payload containing the user's token.
+ * @param requestId - The ID of the friend request to delete.
+ * @returns A promise that resolves to an `APISuccess` or `APIError`.
+ * @throws If the request fails or the server responds with a status code >= 500.
+ */
+export async function cancelFriendRequest(user: UserPayload, requestId: number) {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  const res = await fetch(`${URL}/api/user/friend/request/${requestId}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+  });
+  if (res.status >= 500) {
+    throw new Error(`Failed to delete friend request ${requestId}.`);
+  }
+  return (await res.json()) as APISuccess | APIError;
+}
 
 /**
  * Fetches the friends of a user from the backend.
@@ -20,7 +104,7 @@ const URL = "http://localhost:3000";
  * @throws If the request fails or the response is not ok.
  */
 export async function getUsersFriends(user: UserPayload) {
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
