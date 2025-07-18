@@ -186,7 +186,7 @@ function UsersCheckbox({
           <div className="flex flex-col items-center justify-center py-6 text-white">
             <h1 className="text-xl font-semibold flex items-center">
               {mode === "friends" ? (
-                <>No friends found <Frown size={28} className="ml-3" /></>
+                <>No friends found <Frown size={28} className="ml-2" /></>
               ) : (
                 "No users found"
               )}

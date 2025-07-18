@@ -19,7 +19,7 @@ const URL = "http://localhost:3000";
  *
  * @param user - The user payload containing the user's token and username.
  * @returns A promise that resolves to an `APIResponse<FriendRequest[]>` containing a list of incoming friend requests or a `APIError`.
- * @throws If the request fails or the server responds with a status code >= 500.
+ * @throws If the request fails or the response is not ok.
  */
 export async function getIncomingFriendRequests(user: UserPayload) {
   await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -27,10 +27,10 @@ export async function getIncomingFriendRequests(user: UserPayload) {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
-  if (res.status >= 500) {
+  if (!res.ok) {
     throw new Error(`Failed to fetch incoming friend requests for ${user.user.username}.`);
   }
-  return (await res.json()) as APIResponse<FriendRequest[] | APIError>;
+  return (await res.json()) as APIResponse<FriendRequest[]>;
 }
 
 /**
@@ -104,7 +104,6 @@ export async function cancelFriendRequest(user: UserPayload, requestId: number) 
  * @throws If the request fails or the response is not ok.
  */
 export async function getUsersFriends(user: UserPayload) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -122,7 +121,7 @@ export async function getUsersFriends(user: UserPayload) {
  * @throws If the request fails or the response is not ok.
  */
 export async function getUsers() {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   // throw new Error("fail");
   const res = await fetch(`${URL}/api/user`, {
     method: "GET",
