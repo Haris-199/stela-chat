@@ -1,5 +1,14 @@
 import { useContext, useRef, useState } from "react";
-import { Users, UserPlus, UserCheck, UserX, Users as UsersIcon, X, Frown, UserMinus } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  UserCheck,
+  UserX,
+  Users as UsersIcon,
+  X,
+  Frown,
+  UserMinus,
+} from "lucide-react";
 import AuthContext from "../contexts/AuthContext";
 import Avatar from "./Avatar";
 import { getIncomingFriendRequests, getUsers, getUsersFriends } from "../services/api";
@@ -28,6 +37,7 @@ export default function UsersModal() {
   return (
     <>
       <button
+        type="button"
         className="size-15 flex flex-col items-center p-2 rounded-lg hover:bg-primary-700 text-primary-100"
         title="Users"
         onClick={() => dialogRef.current?.showModal()}
@@ -46,6 +56,7 @@ export default function UsersModal() {
               <UsersIcon size={22} /> Users
             </h2>
             <button
+              type="button"
               onClick={() => dialogRef.current?.close()}
               className="text-white text-2xl rounded-full p-1 font-bold cursor-pointer hover:bg-primary-100/20"
               title="Close"
@@ -55,6 +66,7 @@ export default function UsersModal() {
           </div>
           <div className="flex gap-1 px-6 font-semibold text-md">
             <button
+              type="button"
               className={`px-3 py-1 rounded-t-lg transition-colors ${
                 mode === "users"
                   ? "bg-primary-100 text-primary-700"
@@ -66,6 +78,7 @@ export default function UsersModal() {
               All Users
             </button>
             <button
+              type="button"
               className={`px-3 py-1 rounded-t-lg transition-colors ${
                 mode === "friends"
                   ? "bg-primary-100 text-primary-700"
@@ -77,6 +90,7 @@ export default function UsersModal() {
               Friends
             </button>
             <button
+              type="button"
               className={`px-3 py-1 rounded-t-lg transition-colors ${
                 mode === "requests"
                   ? "bg-primary-100 text-primary-700"

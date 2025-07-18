@@ -1,8 +1,7 @@
 import { useActionState, useContext, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, User2, MessageCircle, Users2, Frown } from "lucide-react";
+import { Plus, MessageCircle, Frown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import clsx from "clsx";
 import Avatar from "./Avatar";
 import Spinner from "./Spinner";
 import { createChat, getUsers, getUsersFriends } from "../services/api";
@@ -40,6 +39,7 @@ export default function CreateChatModal() {
   return (
     <>
       <button
+        type="button"
         className="flex flex-col items-center p-2 rounded-lg hover:bg-primary-700"
         title="New Chat"
         onClick={() => dialogRef.current?.showModal()}
@@ -114,8 +114,7 @@ function UsersCheckbox({
 }) {
   const [mode, setMode] = useState<"friends" | "users">("friends");
   const {
-    data: list,
-    refetch,
+    data: list ,
     isPending,
   } = useQuery({
     queryKey: [mode],
@@ -130,90 +129,91 @@ function UsersCheckbox({
     },
   });
 
-  const buttonStyle =
-    "cursor-pointer flex items-center justify-center gap-2 p-2 bg-primary-600 hover:bg-primary-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400";
-
   return (
-    <div className="flex flex-col max-h-50 mb-2 -mt-2 rounded-xl shadow-lg">
-      <div className="text-white transition-colors grid grid-cols-2 gap-x-1 bg-primary-700 rounded-xl">
+    <div className="flex flex-col max-h-50 mb-2 -mt-2 rounded-xl">
+      <div className="flex gap-1 font-semibold text-md">
         <button
           type="button"
-          className={clsx("rounded-tl-xl", buttonStyle, {
-            "pointer-events-none bg-primary-700 cursor-default": mode === "friends",
-          })}
-          onClick={() => {
-            setMode("friends");
-            refetch();
-          }}
+          className={`px-3 py-1 rounded-t-lg transition-colors ${
+            mode === "friends"
+              ? "bg-primary-100 text-primary-700"
+              : "bg-primary-500 text-white hover:bg-primary-500/70 cursor-pointer"
+          }`}
+          onClick={() => setMode("friends")}
           tabIndex={mode === "friends" ? -1 : undefined}
         >
-          <User2 size={18} /> Friends
+          Friends
         </button>
         <button
           type="button"
-          className={clsx("rounded-tr-xl", buttonStyle, {
-            "pointer-events-none bg-primary-700 cursor-default": mode === "users",
-          })}
-          onClick={() => {
-            setMode("users");
-            refetch();
-          }}
+          className={`px-3 py-1 rounded-t-lg transition-colors ${
+            mode === "users"
+              ? "bg-primary-100 text-primary-700"
+              : "bg-primary-500 text-white hover:bg-primary-500/70 cursor-pointer"
+          }`}
+          onClick={() => setMode("users")}
           tabIndex={mode === "users" ? -1 : undefined}
         >
-          <Users2 size={18} /> All Users
+          All Users
         </button>
       </div>
       <div
-        className="overflow-y-auto rounded-b-xl bg-gradient-to-br from-primary-300 to-primary-400"
-        style={{
-          scrollbarWidth: "thin",
-          scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
-        }}
+        className="overflow-hidden flex rounded-b-lg rounded-tr-lg"
       >
-        {isPending || list === undefined ? (
-          [1, 2, 3].map((n) => (
-            <div
-              key={n}
-              className="flex items-center justify-between px-3 py-2 bg-primary-100 not-last:border-b border-primary-200 "
-            >
-              <div className="animate-pulse flex items-center gap-2">
-                <div className="rounded-full size-8 bg-primary-300" />
-                <div className="w-25 h-3 rounded-xl bg-primary-300" />
+        <ul
+          className="w-full overflow-y-auto bg-gradient-to-br from-primary-300 to-primary-400"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
+          }}
+        >
+          {isPending || list === undefined ? (
+            [1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className="flex items-center justify-between px-3 py-2 bg-primary-100 not-last:border-b border-primary-200 "
+              >
+                <div className="animate-pulse flex items-center gap-2">
+                  <div className="rounded-full size-8 bg-primary-300" />
+                  <div className="w-25 h-3 rounded-xl bg-primary-300" />
+                </div>
               </div>
-            </div>
-          ))
-        ) : list.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-6 text-white">
-            <h1 className="text-xl font-semibold flex items-center">
-              {mode === "friends" ? (
-                <>No friends found <Frown size={28} className="ml-2" /></>
-              ) : (
-                "No users found"
-              )}
-            </h1>
-          </div>
-        ) : (
-          list.map((user) => (
-            <label
-              key={user.username}
-              htmlFor={`user-${user.username}`}
-              className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 not-last:border-b border-primary-200 cursor-pointer transition-colors shadow-sm"
-            >
-              <span className="font-medium flex items-center gap-2 text-primary-800">
-                <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
-                {user.username}
-              </span>
-              <input
-                type="checkbox"
-                id={`user-${user.username}`}
-                name="users"
-                value={user.username}
-                className="accent-primary-500"
-                defaultChecked={defaultValues?.includes(user.username)}
-              />
-            </label>
-          ))
-        )}
+            ))
+          ) : list.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-[12px] bg-primary-100 text-primary-700">
+                  <h2 className="text-md font-semibold flex items-center">
+                    {mode === "friends" ? (
+                      <>
+                        No friends found <Frown size={22} className="ml-1.5" />
+                      </>
+                    ) : (
+                      "No users found"
+                    )}
+                  </h2>
+                </div>
+          ) : (
+            list.map((user) => (
+              <label
+                key={user.username}
+                htmlFor={`user-${user.username}`}
+                className="flex items-center justify-between gap-2 px-3 py-2 bg-primary-100 hover:bg-primary-200 not-last:border-b border-primary-200 cursor-pointer transition-colors shadow-sm"
+              >
+                <span className="font-medium flex items-center gap-2 text-primary-800">
+                  <Avatar letter={user.username[0].toUpperCase()} className="size-8 text-xs" />
+                  {user.username}
+                </span>
+                <input
+                  type="checkbox"
+                  id={`user-${user.username}`}
+                  name="users"
+                  value={user.username}
+                  className="accent-primary-500"
+                  defaultChecked={defaultValues?.includes(user.username)}
+                />
+              </label>
+            ))
+          )}
+        </ul>
       </div>
     </div>
   );
