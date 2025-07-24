@@ -47,8 +47,19 @@ export default function UsersModal() {
       </button>
       <dialog
         ref={dialogRef}
-        className="fixed inset-0 z-50 rounded-none border-0 p-0 max-h-none h-screen max-w-none w-screen  sm:w-[clamp(370px,30%,450px)] overflow-hidden shadow-2xl"
+        className="fixed inset-0 z-50 max-h-none h-screen max-w-none w-screen sm:w-[clamp(370px,30%,450px)] overflow-hidden shadow-2xl backdrop:bg-black/40"
         style={{ background: "none" }}
+        onClick={(e) => {
+          const dims = dialogRef.current?.getBoundingClientRect();
+          if (dims?.right === undefined) return;
+          if (
+            e.clientY < dims.top ||
+            e.clientX > dims.right ||
+            e.clientY > dims.bottom ||
+            e.clientX < dims.left
+          )
+            dialogRef.current?.close();
+        }}
       >
         <div className=" h-full bg-gradient-to-br from-primary-700/90 via-primary-500/90 to-primary-400/90 flex flex-col">
           <div className="flex justify-between items-center pl-6 pr-5 pt-4 pb-3">
@@ -137,6 +148,7 @@ export default function UsersModal() {
                       {user.username}
                     </span>
                     <button
+                      type="button"
                       className="p-2 rounded-full bg-primary-500 hover:bg-primary-600 text-white cursor-pointer"
                       title="Send Friend Request"
                     >
@@ -155,6 +167,7 @@ export default function UsersModal() {
                       {user.username}
                     </span>
                     <button
+                      type="button"
                       className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
                       title="Remove Friend"
                     >
@@ -177,12 +190,14 @@ export default function UsersModal() {
                     </span>
                     <span className="flex gap-2">
                       <button
+                        type="button"
                         className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer"
                         title="Accept"
                       >
                         <UserCheck size={20} />
                       </button>
                       <button
+                        type="button"
                         className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
                         title="Reject"
                       >

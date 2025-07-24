@@ -49,7 +49,18 @@ export default function CreateChatModal() {
       </button>
       <dialog
         ref={dialogRef}
-        className="backdrop:brightness-10 rounded-xl left-[calc(50%-min(400px,90%)/2)] top-[calc(50%-475px/2)] w-[min(400px,90%)] h-[475px] overflow-y-hidden shadow-lg p-0 border-0"
+        className="backdrop:bg-black/40 rounded-xl left-[calc(50%-min(400px,90%)/2)] top-[calc(50%-475px/2)] w-[min(400px,90%)] h-[475px] overflow-y-hidden shadow-lg"
+        onClick={(e) => {
+          const dims = dialogRef.current?.getBoundingClientRect();
+          if (dims?.right === undefined) return;
+          if (
+            e.clientY < dims.top ||
+            e.clientX > dims.right ||
+            e.clientY > dims.bottom ||
+            e.clientX < dims.left
+          )
+            dialogRef.current?.close();
+        }}
       >
         <form action={action} className="bg-white rounded-xl p-6 flex flex-col gap-3">
           <h1 className="text-3xl font-bold text-center text-primary-700 mb-1">New Chat</h1>
@@ -58,7 +69,7 @@ export default function CreateChatModal() {
               <span className="text-sm font-medium text-black-700">Chat Name</span>
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <span className="absolute inset-y-0 flex items-center pl-3 text-gray-400">
                 <MessageCircle size={20} />
               </span>
               <input
@@ -113,10 +124,7 @@ function UsersCheckbox({
   defaultValues: string[] | undefined;
 }) {
   const [mode, setMode] = useState<"friends" | "users">("friends");
-  const {
-    data: list ,
-    isPending,
-  } = useQuery({
+  const { data: list, isPending } = useQuery({
     queryKey: [mode],
     queryFn: () => {
       switch (mode) {
@@ -157,9 +165,7 @@ function UsersCheckbox({
           All Users
         </button>
       </div>
-      <div
-        className="overflow-hidden flex rounded-b-lg rounded-tr-lg"
-      >
+      <div className="overflow-hidden flex rounded-b-lg rounded-tr-lg">
         <ul
           className="w-full overflow-y-auto bg-gradient-to-br from-primary-300 to-primary-400"
           style={{
@@ -181,16 +187,16 @@ function UsersCheckbox({
             ))
           ) : list.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-[12px] bg-primary-100 text-primary-700">
-                  <h2 className="text-md font-semibold flex items-center">
-                    {mode === "friends" ? (
-                      <>
-                        No friends found <Frown size={22} className="ml-1.5" />
-                      </>
-                    ) : (
-                      "No users found"
-                    )}
-                  </h2>
-                </div>
+              <h2 className="text-md font-semibold flex items-center">
+                {mode === "friends" ? (
+                  <>
+                    No friends found <Frown size={22} className="ml-1.5" />
+                  </>
+                ) : (
+                  "No users found"
+                )}
+              </h2>
+            </div>
           ) : (
             list.map((user) => (
               <label
