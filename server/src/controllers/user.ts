@@ -165,7 +165,7 @@ export async function deleteFriendRequest(req: Request, res: Response, next: Nex
 
     const request = await prisma.friendRequest.findUnique({ where: { id } });
 
-    if (request === null || request.senderId !== user.id) {
+    if (request === null || request.receiverId !== user.id) {
       res.status(404).json({
         success: false,
         message: "Friend request not found.",

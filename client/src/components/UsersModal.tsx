@@ -11,9 +11,17 @@ import {
 } from "lucide-react";
 import AuthContext from "../contexts/AuthContext";
 import Avatar from "./Avatar";
-import { getIncomingFriendRequests, getUsers, getUsersFriends } from "../services/api";
-import { useQuery } from "@tanstack/react-query";
-import { FriendRequest, User } from "../types";
+import {
+  acceptFriendRequest,
+  cancelFriendRequest,
+  getIncomingFriendRequests,
+  getUsers,
+  getUsersFriends,
+  sendFriendRequest,
+} from "../services/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FriendRequest, User, UserPayload } from "../types";
+import Spinner from "./Spinner";
 
 export default function UsersModal() {
   const { userData } = useContext(AuthContext);
@@ -124,87 +132,18 @@ export default function UsersModal() {
               {isPending || list === undefined ? (
                 <SkeletonList />
               ) : list.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-4.5 bg-primary-100 text-primary-700">
-                  <h1 className="text-xl font-semibold flex items-center">
-                    {mode === "friends" ? (
-                      <>
-                        No friends found <Frown size={28} className="ml-2" />
-                      </>
-                    ) : mode === "users" ? (
-                      "No users found"
-                    ) : (
-                      "No requests found"
-                    )}
-                  </h1>
-                </div>
+                <EmptyList mode={mode} />
               ) : mode === "users" ? (
-                (list as User[]).map((user) => (
-                  <li
-                    key={user.username}
-                    className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 bg-primary-100 hover:bg-primary-200/70 not-last:border-b border-primary-200 transition-colors shadow-sm"
-                  >
-                    <span className="font-medium flex items-center gap-2 text-primary-800">
-                      <Avatar letter={user.username[0].toUpperCase()} className="size-10 text-md" />
-                      {user.username}
-                    </span>
-                    <button
-                      type="button"
-                      className="p-2 rounded-full bg-primary-500 hover:bg-primary-600 text-white cursor-pointer"
-                      title="Send Friend Request"
-                    >
-                      <UserPlus size={20} />
-                    </button>
-                  </li>
+                list.map((user) => (
+                  <UsersListItem key={user.username} userData={userData!} user={user} />
                 ))
               ) : mode === "friends" ? (
-                (list as User[]).map((user) => (
-                  <li
-                    key={user.username}
-                    className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 bg-primary-100 hover:bg-primary-200/70 not-last:border-b border-primary-200 transition-colors shadow-sm"
-                  >
-                    <span className="font-medium flex items-center gap-2 text-primary-800">
-                      <Avatar letter={user.username[0].toUpperCase()} className="size-10 text-md" />
-                      {user.username}
-                    </span>
-                    <button
-                      type="button"
-                      className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-                      title="Remove Friend"
-                    >
-                      <UserMinus size={20} />
-                    </button>
-                  </li>
+                list.map((user) => (
+                  <FriendsListItem key={user.username} userData={userData!} user={user} />
                 ))
               ) : (
                 (list as FriendRequest[]).map((request) => (
-                  <li
-                    key={request.id}
-                    className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 bg-primary-100 hover:bg-primary-200/70 not-last:border-b border-primary-200 transition-colors shadow-sm"
-                  >
-                    <span className="font-medium flex items-center gap-2 text-primary-800">
-                      <Avatar
-                        letter={request.username[0].toUpperCase()}
-                        className="size-10 text-md"
-                      />
-                      {request.username}
-                    </span>
-                    <span className="flex gap-2">
-                      <button
-                        type="button"
-                        className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer"
-                        title="Accept"
-                      >
-                        <UserCheck size={20} />
-                      </button>
-                      <button
-                        type="button"
-                        className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-                        title="Reject"
-                      >
-                        <UserX size={20} />
-                      </button>
-                    </span>
-                  </li>
+                  <RequestsListItem key={request.username} userData={userData!} request={request} />
                 ))
               )}
             </ul>
@@ -227,4 +166,135 @@ function SkeletonList() {
       </div>
     </div>
   ));
+}
+
+function EmptyList({ mode }: { mode: "users" | "friends" | "requests" }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-4.5 bg-primary-100 text-primary-700">
+      <h1 className="text-xl font-semibold flex items-center">
+        {mode === "friends" ? (
+          <>
+            No friends found <Frown size={28} className="ml-2" />
+          </>
+        ) : mode === "users" ? (
+          "No users found"
+        ) : (
+          "No requests found"
+        )}
+      </h1>
+    </div>
+  );
+}
+
+function UsersListItem({ userData, user }: { userData: UserPayload; user: User }) {
+  const queryClient = useQueryClient();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: ({ receiver }: { receiver: string }) => sendFriendRequest(userData, receiver),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: ["users"] }),
+  });
+
+  return (
+    <li
+      key={user.username}
+      className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 bg-primary-100 hover:bg-primary-200/70 not-last:border-b border-primary-200 transition-colors shadow-sm"
+    >
+      <span className="font-medium flex items-center gap-2 text-primary-800">
+        <Avatar letter={user.username[0].toUpperCase()} className="size-10 text-md" />
+        {user.username}
+      </span>
+      {isPending ? (
+        <span className="p-2 rounded-full grid place-items-center bg-primary text-white">
+          <Spinner size={20} className="text-white" />
+        </span>
+      ) : (
+        <button
+          type="button"
+          className="p-2 rounded-full bg-primary hover:bg-primary-600 text-white cursor-pointer"
+          title="Send Friend Request"
+          onClick={() => mutateAsync({ receiver: user.username })}
+        >
+          <UserPlus size={20} />
+        </button>
+      )}
+    </li>
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function FriendsListItem({ userData, user }: { userData: UserPayload; user: User }) {
+  return (
+    <li
+      key={user.username}
+      className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 bg-primary-100 hover:bg-primary-200/70 not-last:border-b border-primary-200 transition-colors shadow-sm"
+    >
+      <span className="font-medium flex items-center gap-2 text-primary-800">
+        <Avatar letter={user.username[0].toUpperCase()} className="size-10 text-md" />
+        {user.username}
+      </span>
+      <button
+        type="button"
+        className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+        title="Remove Friend"
+      >
+        <UserMinus size={20} />
+      </button>
+    </li>
+  );
+}
+
+function RequestsListItem({
+  userData,
+  request,
+}: {
+  userData: UserPayload;
+  request: FriendRequest;
+}) {
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: acceptRequest, isPending: acceptPending } = useMutation({
+    mutationFn: ({ requestId, sender }: { requestId: number; sender: string }) =>
+      acceptFriendRequest(userData, requestId, sender),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
+  });
+
+  const { mutateAsync: cancelRequest, isPending: cancelPending } = useMutation({
+    mutationFn: ({ requestId }: { requestId: number }) => cancelFriendRequest(userData, requestId),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
+  });
+
+  return (
+    <li
+      key={request.id}
+      className="flex flex-wrap items-center justify-between gap-2 px-3 py-3 bg-primary-100 hover:bg-primary-200/70 not-last:border-b border-primary-200 transition-colors shadow-sm"
+    >
+      <span className="font-medium flex items-center gap-2 text-primary-800">
+        <Avatar letter={request.username[0].toUpperCase()} className="size-10 text-md" />
+        {request.username}
+      </span>
+      {acceptPending || cancelPending ? (
+        <span className="p-2 text-white rounded-full bg-primary">
+          <Spinner size={20} />
+        </span>
+      ) : (
+        <span className="flex gap-2">
+          <button
+            type="button"
+            className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer"
+            title="Accept"
+            onClick={() => acceptRequest({ requestId: request.id, sender: request.username })}
+          >
+            <UserCheck size={20} />
+          </button>
+          <button
+            type="button"
+            className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+            title="Reject"
+            onClick={() => cancelRequest({ requestId: request.id })}
+          >
+            <UserX size={20} />
+          </button>
+        </span>
+      )}
+    </li>
+  );
 }

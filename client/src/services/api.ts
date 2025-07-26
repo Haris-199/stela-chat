@@ -64,7 +64,7 @@ export async function sendFriendRequest(user: UserPayload, receiver: string) {
  * @throws If the request fails or the server responds with a status code >= 500.
  */
 export async function acceptFriendRequest(user: UserPayload, requestId: number, sender: string) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend/request/${requestId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -85,7 +85,7 @@ export async function acceptFriendRequest(user: UserPayload, requestId: number, 
  * @throws If the request fails or the server responds with a status code >= 500.
  */
 export async function cancelFriendRequest(user: UserPayload, requestId: number) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend/request/${requestId}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
