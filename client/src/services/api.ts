@@ -97,6 +97,26 @@ export async function cancelFriendRequest(user: UserPayload, requestId: number) 
 }
 
 /**
+ * Deletes a friend by their username.
+ *
+ * @param user - The user payload containing the user's token.
+ * @param username - The username of the friend to delete.
+ * @returns A promise that resolves to an `APISuccess` or `APIError`.
+ * @throws If the server responds with a status code >= 500.
+ */
+export async function deleteFriend(user: UserPayload, username: string) {
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  const res = await fetch(`${URL}/api/user/friend/${username}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
+  });
+  if (res.status >= 500) {
+    throw new Error(`Failed to delete friend ${username}.`);
+  }
+  return (await res.json()) as APISuccess | APIError;
+}
+
+/**
  * Fetches the friends of a user from the backend.
  *
  * @param user - The user payload containing the user's token and username.

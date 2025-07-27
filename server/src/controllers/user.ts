@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../db/client";
+import { fr } from "zod/v4/locales";
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   try {
@@ -24,6 +25,57 @@ export async function getFriend(req: Request, res: Response, next: NextFunction)
       success: true,
       message: "Friends retrieved successfully.",
       data: friends[0]?.friends,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteFriend(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { username } = req.params;
+    const user = req.user!;
+
+    if (username === user.username) {
+      res.status(400).json({
+        success: false,
+        message: "Cannot remove yourself as a friend.",
+      });
+      return;
+    }
+
+    const friend = await prisma.user.findUnique({
+      where: { username },
+      include: { friends: true },
+    });
+
+    if (friend === null) {
+      res.status(400).json({
+        success: false,
+        message: `User with username "${username}" not found.`,
+      });
+      return;
+    }
+
+    if (!friend.friends.some((f) => f.id === user.id)) {
+      res.status(400).json({
+        success: false,
+        message: `User "${user.username}" is not friends with "${username}".`,
+      });
+      return;
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        friends: { disconnect: { id: friend.id } },
+        friendOf: { disconnect: { id: friend.id } },
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Friend removed successfully.",
     });
   } catch (error) {
     next(error);

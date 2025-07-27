@@ -14,6 +14,7 @@ import Avatar from "./Avatar";
 import {
   acceptFriendRequest,
   cancelFriendRequest,
+  deleteFriend,
   getIncomingFriendRequests,
   getUsers,
   getUsersFriends,
@@ -220,8 +221,13 @@ function UsersListItem({ userData, user }: { userData: UserPayload; user: User }
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function FriendsListItem({ userData, user }: { userData: UserPayload; user: User }) {
+  const queryClient = useQueryClient();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: () => deleteFriend(userData, user.username),
+    onSuccess: () => queryClient.refetchQueries({ queryKey: ["friends"] }),
+  });
+
   return (
     <li
       key={user.username}
@@ -231,13 +237,21 @@ function FriendsListItem({ userData, user }: { userData: UserPayload; user: User
         <Avatar letter={user.username[0].toUpperCase()} className="size-10 text-md" />
         {user.username}
       </span>
-      <button
+      {isPending ? (
+        <span className="p-2 rounded-full grid place-items-center bg-primary text-white">
+          <Spinner size={20} className="text-white" />
+        </span>
+      ) : (
+        <button
         type="button"
         className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
         title="Remove Friend"
+        onClick={() => mutateAsync()}
       >
         <UserMinus size={20} />
       </button>
+      )}
+      
     </li>
   );
 }
@@ -252,13 +266,13 @@ function RequestsListItem({
   const queryClient = useQueryClient();
 
   const { mutateAsync: acceptRequest, isPending: acceptPending } = useMutation({
-    mutationFn: ({ requestId, sender }: { requestId: number; sender: string }) =>
-      acceptFriendRequest(userData, requestId, sender),
+    mutationFn: () =>
+      acceptFriendRequest(userData, request.id, request.username),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
   });
 
   const { mutateAsync: cancelRequest, isPending: cancelPending } = useMutation({
-    mutationFn: ({ requestId }: { requestId: number }) => cancelFriendRequest(userData, requestId),
+    mutationFn: () => cancelFriendRequest(userData, request.id),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
   });
 
@@ -281,7 +295,7 @@ function RequestsListItem({
             type="button"
             className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer"
             title="Accept"
-            onClick={() => acceptRequest({ requestId: request.id, sender: request.username })}
+            onClick={() => acceptRequest()}
           >
             <UserCheck size={20} />
           </button>
@@ -289,7 +303,7 @@ function RequestsListItem({
             type="button"
             className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
             title="Reject"
-            onClick={() => cancelRequest({ requestId: request.id })}
+            onClick={() => cancelRequest()}
           >
             <UserX size={20} />
           </button>
