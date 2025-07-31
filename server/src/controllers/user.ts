@@ -34,6 +34,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     }
 
     const users = await prisma.user.findMany({
+      orderBy: { username: "asc" },
       where,
       select: { username: true },
     });
@@ -51,7 +52,7 @@ export async function getFriend(req: Request, res: Response, next: NextFunction)
   try {
     const friends = await prisma.user.findMany({
       where: { id: req.user!.id },
-      select: { friends: { select: { username: true } } },
+      select: { friends: { orderBy: { username: "asc" }, select: { username: true } } },
     });
     res.status(200).json({
       success: true,
