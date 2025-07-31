@@ -1,9 +1,11 @@
 import { LogIn, LogOut, Menu, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import useSignout from "../hooks/useSignout";
 
 export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const signout = useSignout();
 
   return (
     <header className="flex items-center justify-between px-8 py-6 bg-white/80 shadow-md">
@@ -24,7 +26,7 @@ export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boole
                 <>
                   <Link
                     to="/login"
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-50 text-primary-700 rounded-t-lg"
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-100/80 text-primary-700 rounded-t-lg"
                     onClick={() => setMenuOpen(false)}
                   >
                     <LogIn className="w-4 h-4" />
@@ -32,7 +34,7 @@ export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boole
                   </Link>
                   <Link
                     to="/register"
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-50 text-primary-700"
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-100/80 text-primary-700"
                     onClick={() => setMenuOpen(false)}
                   >
                     <UserPlus className="w-4 h-4" />
@@ -43,7 +45,7 @@ export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boole
                 <>
                   <Link
                     to="/chat"
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-50 text-primary-700 rounded-t-lg"
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-100/80 text-primary-700 rounded-t-lg"
                     onClick={() => setMenuOpen(false)}
                   >
                     <LogIn className="w-4 h-4" />
@@ -51,8 +53,11 @@ export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boole
                   </Link>
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-50 text-primary-700"
-                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-primary-100/80 text-primary-700 cursor-pointer"
+                    onClick={() => {
+                      signout();
+                      setMenuOpen(false);
+                    }}
                   >
                     <LogOut className="w-4 h-4" />
                     Sign Out
@@ -95,6 +100,7 @@ export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boole
               <button
                 type="button"
                 className="inline-flex items-center gap-2 px-5 py-2 bg-white text-primary-600 rounded-lg border border-primary-300 shadow hover:bg-primary-100/80 transition-colors font-semibold"
+                onClick={() => signout()}
               >
                 <LogOut className="w-5 h-5" />
                 Sign Out
