@@ -29,7 +29,7 @@ export default function UsersModal() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mode, setMode] = useState<"users" | "friends" | "requests">("users");
   const { data: list, isPending } = useQuery<User[] | FriendRequest[]>({
-    queryKey: [mode],
+    queryKey: [mode,  "excludeUsersFriends", "omitUsersWithPendingFriendRequests"],
     queryFn: () => {
       switch (mode) {
         case "friends":
@@ -38,7 +38,10 @@ export default function UsersModal() {
           return getIncomingFriendRequests(userData!).then((res) => res.data);
         case "users":
         default:
-          return getUsers().then((res) => res.data);
+          return getUsers(userData!, {
+            excludeFriends: true,
+            omitUsersWithPendingFriendRequests: true,
+          }).then((res) => res.data);
       }
     },
   });
@@ -243,15 +246,14 @@ function FriendsListItem({ userData, user }: { userData: UserPayload; user: User
         </span>
       ) : (
         <button
-        type="button"
-        className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-        title="Remove Friend"
-        onClick={() => mutateAsync()}
-      >
-        <UserMinus size={20} />
-      </button>
+          type="button"
+          className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+          title="Remove Friend"
+          onClick={() => mutateAsync()}
+        >
+          <UserMinus size={20} />
+        </button>
       )}
-      
     </li>
   );
 }
@@ -266,8 +268,7 @@ function RequestsListItem({
   const queryClient = useQueryClient();
 
   const { mutateAsync: acceptRequest, isPending: acceptPending } = useMutation({
-    mutationFn: () =>
-      acceptFriendRequest(userData, request.id, request.username),
+    mutationFn: () => acceptFriendRequest(userData, request.id, request.username),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
   });
 

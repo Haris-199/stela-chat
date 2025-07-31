@@ -129,7 +129,7 @@ function UsersCheckbox({
     queryFn: () => {
       switch (mode) {
         case "users":
-          return getUsers().then((res) => res.data);
+          return getUsers(userData).then((res) => res.data);
         case "friends":
         default:
           return getUsersFriends(userData).then((res) => res.data);

@@ -1,10 +1,42 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../db/client";
-import { fr } from "zod/v4/locales";
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const users = await prisma.user.findMany({ select: { username: true } });
+    const userId = req.user!.id;
+    const includeSelf = req.query.includeSelf === "true";
+    const excludeFriends = req.query.excludeFriends === "true";
+    const excludeFriendReqUsers = req.query.omitUsersWithPendingFriendRequests === "true";
+
+    let where: any = {};
+
+    if (!includeSelf) {
+      where.id = { not: userId };
+    }
+
+    if (excludeFriendReqUsers) {
+      where.NOT = [
+        {
+          sentFriendRequests: {
+            some: { receiverId: userId },
+          },
+        },
+        {
+          receivedFriendRequests: {
+            some: { senderId: userId },
+          },
+        },
+      ];
+    }
+
+    if (excludeFriends) {
+      where.OR = [{ friends: { none: { id: userId } } }, { friendOf: { none: { id: userId } } }];
+    }
+
+    const users = await prisma.user.findMany({
+      where,
+      select: { username: true },
+    });
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully.",

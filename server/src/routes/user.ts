@@ -12,9 +12,9 @@ import { authenticateJWT } from "../middleware/auth";
 
 const router = Router();
 
-router.get("/", getUser);
+router.use(authenticateJWT);
 
-router.use("/friend", authenticateJWT);
+router.get("/", getUser);
 
 router.get("/friend/request", getFriendRequest);
 router.post("/friend/request", postFriendRequest);

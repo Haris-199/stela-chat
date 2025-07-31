@@ -78,7 +78,7 @@ export async function acceptFriendRequest(user: UserPayload, requestId: number, 
 
 /**
  * Deletes a friend request by its ID.
- * 
+ *
  * @param user - The user payload containing the user's token.
  * @param requestId - The ID of the friend request to delete.
  * @returns A promise that resolves to an `APISuccess` or `APIError`.
@@ -137,15 +137,31 @@ export async function getUsersFriends(user: UserPayload) {
 /**
  * Fetches a list of all users from the backend.
  *
+ * @param user - The user payload containing the user's token and username.
+ * @param options - Optional parameters to filter the user list:
+ *   - `includeSelf`: If true, includes the user themselves in the list.
+ *   - `excludeFriends`: If true, excludes friends from the list.
+ *   - `omitUsersWithPendingFriendRequests`: If true, omits users who have pending friend requests from the list.
  * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of users.
  * @throws If the request fails or the response is not ok.
  */
-export async function getUsers() {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  // throw new Error("fail");
-  const res = await fetch(`${URL}/api/user`, {
+export async function getUsers(
+  user: UserPayload,
+  options: {
+    includeSelf?: boolean;
+    excludeFriends?: boolean;
+    omitUsersWithPendingFriendRequests?: boolean;
+  } = {},
+) {
+  const queryParams = new URLSearchParams({
+    includeSelf: options.includeSelf ? "true" : "",
+    excludeFriends: options.excludeFriends ? "true" : "",
+    omitUsersWithPendingFriendRequests: options.omitUsersWithPendingFriendRequests ? "true" : "",
+  }).toString();
+
+  const res = await fetch(`${URL}/api/user?${queryParams}`, {
     method: "GET",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
   if (!res.ok) {
     throw new Error("Failed to fetch users.");
