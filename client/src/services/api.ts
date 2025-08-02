@@ -305,11 +305,11 @@ export async function login(username: string, password: string) {
  *          or a `RegisterError` object on failure.
  * @throws If the server responds with a status code >= 500.
  */
-export async function register(username: string, password: string) {
+export async function register(username: string, password: string, confirmPassword: string) {
   const res = await fetch(`${URL}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ username, password, confirmPassword }),
   });
 
   if (res.status >= 500) {

@@ -84,28 +84,28 @@ describe("POST /auth/register", () => {
   });
 
   it("should register a user successfully", async () => {
-    const response = await request(app).post("/").send({ username: "user", password: "Password1!" });
+    const response = await request(app).post("/").send({ username: "user", password: "Password1!", confirmPassword: "Password1!" });
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("User successfully created.");
     expect(response.body.success).toBe(true);
   });
 
   it("should handle a taken username", async () => {
-    const response = await request(app).post("/").send({ username: "Haris", password: "Password1!" });
+    const response = await request(app).post("/").send({ username: "Haris", password: "Password1!", confirmPassword: "Password1!" });
     expect(response.status).toBe(400);
     expect(response.body.errors.username[0]).toBe("Username is taken.");
     expect(response.body.success).toBe(false);
   });
 
   it("should handle empty username", async () => {
-    const response = await request(app).post("/").send({ username: "", password: "pass" });
+    const response = await request(app).post("/").send({ username: "", password: "pass", confirmPassword: "pass" });
     expect(response.status).toBe(400);
     expect(response.body.errors.username[0]).toBe("Username is required.");
     expect(response.body.success).toBe(false);
   });
 
   it("should handle password less than 8 characters", async () => {
-    const response = await request(app).post("/").send({ username: "Haris", password: "short" });
+    const response = await request(app).post("/").send({ username: "Haris", password: "short", confirmPassword: "short" });
     expect(response.status).toBe(400);
     expect(response.body.errors.password[0]).toBe("Password must be at least 8 characters long.");
     expect(response.body.success).toBe(false);
@@ -114,7 +114,7 @@ describe("POST /auth/register", () => {
   it("should handle password without an uppercase letter", async () => {
     const response = await request(app)
       .post("/")
-      .send({ username: "Haris", password: "lowercase_1" });
+      .send({ username: "Haris", password: "lowercase_1", confirmPassword: "lowercase_1" });
     expect(response.status).toBe(400);
     expect(response.body.errors.password[0]).toBe(
       "Password must contain at least one uppercase letter.",
@@ -125,7 +125,7 @@ describe("POST /auth/register", () => {
   it("should handle password without a lowercase letter", async () => {
     const response = await request(app)
       .post("/")
-      .send({ username: "Haris", password: "UPPERCASE_1" });
+      .send({ username: "Haris", password: "UPPERCASE_1", confirmPassword: "UPPERCASE_1" });
     expect(response.status).toBe(400);
     expect(response.body.errors.password[0]).toBe(
       "Password must contain at least one lowercase letter.",
@@ -134,7 +134,7 @@ describe("POST /auth/register", () => {
   });
 
   it("should handle password without a digit", async () => {
-    const response = await request(app).post("/").send({ username: "Haris", password: "NoDigit!" });
+    const response = await request(app).post("/").send({ username: "Haris", password: "NoDigit!", confirmPassword: "NoDigit!" });
     expect(response.status).toBe(400);
     expect(response.body.errors.password[0]).toBe("Password must contain at least one number.");
     expect(response.body.success).toBe(false);
@@ -143,11 +143,20 @@ describe("POST /auth/register", () => {
   it("should handle password without a special character", async () => {
     const response = await request(app)
       .post("/")
-      .send({ username: "Haris", password: "9ineChars" });
+      .send({ username: "Haris", password: "9ineChars", confirmPassword: "9ineChars" });
     expect(response.status).toBe(400);
     expect(response.body.errors.password[0]).toBe(
       "Password must contain at least one special character.",
     );
+    expect(response.body.success).toBe(false);
+  });
+
+  it("should handle passwords that do not match", async () => {
+    const response = await request(app)
+      .post("/")
+      .send({ username: "Haris", password: "Password1!", confirmPassword: "" });
+    expect(response.status).toBe(400);
+    expect(response.body.errors.confirmPassword[0]).toBe("Passwords must match.");
     expect(response.body.success).toBe(false);
   });
 });

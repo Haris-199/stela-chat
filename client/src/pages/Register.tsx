@@ -11,7 +11,11 @@ export default function Register() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formElements = e.target as HTMLFormElement;
-    const attempt = await register(formElements["username"].value, formElements["password"].value);
+    const attempt = await register(
+      formElements["username"].value,
+      formElements["password"].value,
+      formElements["confirmPassword"].value,
+    );
 
     if (attempt.success) {
       navigate("/login");
@@ -42,7 +46,9 @@ export default function Register() {
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="Choose a username"
                 autoComplete="username"
-                aria-invalid={!!attempt && attempt.errors.username && attempt.errors.username?.length > 0}
+                aria-invalid={
+                  !!attempt && attempt.errors.username && attempt.errors.username?.length > 0
+                }
                 aria-describedby="username-error"
               />
               {attempt && attempt.errors.username && attempt.errors.username?.length > 0 && (
@@ -56,7 +62,7 @@ export default function Register() {
                 id="username-error"
                 aria-live="polite"
                 aria-atomic="true"
-                className="mt-2 text-sm text-red-600"
+                className="mt-2 text-[13px] text-red-600"
               >
                 {attempt.errors.username[0]}
               </p>
@@ -78,10 +84,12 @@ export default function Register() {
                 required
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="••••••••"
-                aria-invalid={!!attempt && attempt.errors.username && attempt.errors.username?.length > 0}
+                aria-invalid={
+                  !!attempt && attempt.errors.password && attempt.errors.password?.length > 0
+                }
                 aria-describedby="password-error"
               />
-              {attempt && attempt.errors.username && attempt.errors.username?.length > 0 && (
+              {attempt && attempt.errors.password && attempt.errors.password?.length > 0 && (
                 <span className="text-red-600 absolute inset-y-0 right-0 flex items-center pr-3">
                   <X />
                 </span>
@@ -92,15 +100,62 @@ export default function Register() {
                 id="password-error"
                 aria-live="polite"
                 aria-atomic="true"
-                className="mt-2 text-sm text-red-600"
+                className="text-[13px] text-red-600"
               >
                 {attempt.errors.password.map((msg) => (
-                  <p key={msg} className="mt-2 text-sm text-red-600">
+                  <p key={msg} className="mt-2">
                     {msg}
                   </p>
                 ))}
               </div>
             )}
+          </div>
+          <div className="relative">
+            <label
+              htmlFor="confirm-password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Confirm Password
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <Lock size={18} />
+              </span>
+              <input
+                type="password"
+                id="confirm-password"
+                name="confirmPassword"
+                autoComplete="new-password"
+                required
+                className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
+                placeholder="••••••••"
+                aria-invalid={
+                  !!attempt &&
+                  attempt.errors.confirmPassword &&
+                  attempt.errors.confirmPassword?.length > 0
+                }
+                aria-describedby="confirm-password-error"
+              />
+              {attempt &&
+                attempt.errors.confirmPassword &&
+                attempt.errors.confirmPassword?.length > 0 && (
+                  <span className="text-red-600 absolute inset-y-0 right-0 flex items-center pr-3">
+                    <X />
+                  </span>
+                )}
+            </div>
+            {attempt &&
+              attempt.errors.confirmPassword &&
+              attempt.errors.confirmPassword?.length > 0 && (
+                <p
+                  id="confirm-password-error"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  className="mt-2 text-[13px] text-red-600"
+                >
+                  {attempt.errors.confirmPassword[0]}
+                </p>
+              )}
             <p className="mt-2 text-xs text-gray-500">Your password must contain at least:</p>
             <ul className="mt-2 text-xs text-gray-500 list-disc mx-4 space-y-1">
               <li>Eight characters</li>
@@ -112,7 +167,6 @@ export default function Register() {
               </li>
             </ul>
           </div>
-
           <button
             type="submit"
             className="w-full py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-md shadow focus:outline-none focus:ring-2 focus:ring-primary-400"

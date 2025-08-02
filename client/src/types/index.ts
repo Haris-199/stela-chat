@@ -68,6 +68,7 @@ export interface RegisterError {
   errors: {
     username?: string[];
     password?: string[];
+    confirmPassword?: string[];
   };
 }
 
