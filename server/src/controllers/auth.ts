@@ -46,7 +46,6 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         success: false,
         errors: {
           username: ["Incorrect username or user does not exist."],
-          password: [],
         },
       });
       return;
@@ -80,7 +79,6 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
   res.status(400).json({
     success: false,
     errors: {
-      username: [],
       password: ["Incorrect password."],
     },
   });
@@ -96,7 +94,6 @@ export const postRegister = async (req: Request, res: Response, next: NextFuncti
       success: false,
       errors: {
         username: ["Username is taken."],
-        password: [],
       },
     });
     return;
