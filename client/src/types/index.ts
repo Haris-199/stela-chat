@@ -58,23 +58,23 @@ export interface APIError {
 export interface LoginError {
   success: false;
   errors: {
-    username: string[];
-    password: string[];
+    username?: string[];
+    password?: string[];
   };
 }
 
 export interface RegisterError {
   success: false;
   errors: {
-    username: string[];
-    password: string[];
+    username?: string[];
+    password?: string[];
   };
 }
 
 export interface ChatCreationError {
   success: false;
   errors: {
-    name: string[];
-    users: string[];
+    name?: string[];
+    users?: string[];
   };
 }

@@ -42,16 +42,16 @@ export default function Register() {
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="Choose a username"
                 autoComplete="username"
-                aria-invalid={!!attempt && attempt.errors.username.length > 0}
+                aria-invalid={!!attempt && attempt.errors.username && attempt.errors.username?.length > 0}
                 aria-describedby="username-error"
               />
-              {attempt && attempt.errors.username.length > 0 && (
+              {attempt && attempt.errors.username && attempt.errors.username?.length > 0 && (
                 <span className="text-red-600 absolute inset-y-0 right-0 flex items-center pr-3">
                   <X />
                 </span>
               )}
             </div>
-            {attempt && attempt.errors.username.length > 0 && (
+            {attempt && attempt.errors.username && attempt.errors.username?.length > 0 && (
               <p
                 id="username-error"
                 aria-live="polite"
@@ -78,16 +78,16 @@ export default function Register() {
                 required
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="••••••••"
-                aria-invalid={!!(attempt && attempt.errors.username.length > 0)}
+                aria-invalid={!!attempt && attempt.errors.username && attempt.errors.username?.length > 0}
                 aria-describedby="password-error"
               />
-              {attempt && attempt.errors.username.length > 0 && (
+              {attempt && attempt.errors.username && attempt.errors.username?.length > 0 && (
                 <span className="text-red-600 absolute inset-y-0 right-0 flex items-center pr-3">
                   <X />
                 </span>
               )}
             </div>
-            {attempt && attempt.errors.username.length > 0 && (
+            {attempt && attempt.errors.password && attempt.errors.password?.length > 0 && (
               <div
                 id="password-error"
                 aria-live="polite"
@@ -104,8 +104,7 @@ export default function Register() {
             <p className="mt-2 text-xs text-gray-500">Your password must contain at least:</p>
             <ul className="mt-2 text-xs text-gray-500 list-disc mx-4 space-y-1">
               <li>Eight characters</li>
-              <li>One uppercase letter</li>
-              <li>One lowercase letter</li>
+              <li>One uppercase letter and lowercase letter</li>
               <li>One digit</li>
               <li>
                 One special character{" "}
