@@ -23,6 +23,29 @@ export async function postChats(req: Request, res: Response, next: NextFunction)
   const user = req.user!;
   const { name, users } = req.body;
 
+  const userChecks = await Promise.all(
+    users.map((u: { username: string }) =>
+      prisma.user.findUnique({ where: { username: u.username } }),
+    ),
+  );
+
+  for (let i = 0; i < userChecks.length; i++) {
+    const u = userChecks[i];
+    if (u === null) {
+      res.status(400).json({
+        success: false,
+        errors: { users: [`User with username "${users[i].username}" not found.`] },
+      });
+      return;
+    } else if (u.username === user.username) {
+      res.status(400).json({
+        success: false,
+        errors: { users: ["You cannot add yourself to a chat."] },
+      });
+      return;
+    }
+  }
+
   try {
     await prisma.chat.create({
       data: {
@@ -31,7 +54,7 @@ export async function postChats(req: Request, res: Response, next: NextFunction)
       },
     });
     res.status(201).json({
-      success: true, 
+      success: true,
       message: "Chat created successfully.",
     });
   } catch (error) {

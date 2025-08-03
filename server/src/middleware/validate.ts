@@ -29,7 +29,7 @@ const validate =
       });
       return;
     }
-    req.body = attempt.data;
+    req[type] = attempt.data;
     next();
   };
 

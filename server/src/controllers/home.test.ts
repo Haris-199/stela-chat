@@ -2,7 +2,7 @@ import request from "supertest";
 import express, { Express } from "express";
 import { getHome } from "./home";
 
-describe("GET /", () => {
+describe("GET /api", () => {
   let app: Express;
 
   beforeEach(() => {

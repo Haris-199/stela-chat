@@ -5,8 +5,9 @@ import { postLogin, postRegister } from "./auth";
 import { prisma } from "../db/client";
 import validate from "../middleware/validate";
 import { loginSchema, registerSchema } from "./auth.schema";
+import { createUser } from "../utils/user";
 
-describe("POST /auth/login", () => {
+describe("POST /api/auth/login", () => {
   let app: Express;
 
   beforeAll(async () => {
@@ -64,7 +65,7 @@ describe("POST /auth/login", () => {
   });
 });
 
-describe("POST /auth/register", () => {
+describe("POST /api/auth/register", () => {
   let app: Express;
 
   beforeEach(async () => {
@@ -160,17 +161,3 @@ describe("POST /auth/register", () => {
     expect(response.body.success).toBe(false);
   });
 });
-
-async function createUser(username: string, password: string) {
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await prisma.user.create({
-      data: {
-        username: username,
-        password: hashedPassword!,
-      },
-    });
-  } catch (error) {
-    console.error("Error creating user:", error);
-  }
-}
