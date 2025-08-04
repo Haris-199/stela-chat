@@ -2,9 +2,13 @@ import request from "supertest";
 import express, { Express, NextFunction, Request, Response } from "express";
 import { prisma } from "../db/client";
 import validate from "../middleware/validate";
-import { createUser, makeFriends } from "../utils/user";
+import { createFriendRequest, createUser, makeFriends } from "../utils/user";
 import { postFriendRequest, putFriendRequest } from "./user";
-import { acceptFriendRequestBodySchema, friendRequestParamsSchema, sendFriendRequestSchema } from "./user.schema";
+import {
+  acceptFriendRequestBodySchema,
+  friendRequestParamsSchema,
+  sendFriendRequestSchema,
+} from "./user.schema";
 
 describe("POST /api/user/friend/request", () => {
   let app: Express;
@@ -13,14 +17,14 @@ describe("POST /api/user/friend/request", () => {
     app = express();
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
-    
+
     const u1 = await createUser("Haris", "pass");
     await createUser("Bilal", "pass");
     await createUser("Yasir", "pass");
     if (u1 !== undefined) {
       makeFriends(u1.username, "Yasir");
-      app.use("/", addMockUser(u1))
-    };
+      app.use("/", addMockUser(u1));
+    }
 
     app.post("/", validate(sendFriendRequestSchema), postFriendRequest);
   });
@@ -73,16 +77,80 @@ describe("POST /api/user/friend/request", () => {
     expect(response.body.success).toBe(false);
     expect(response.body.errors.receiver[0]).toBe("Request already exists.");
   });
-
-  it("should handle non-existent users", async () => {
-    const response = await request(app).post("/").send({ receiver: "NonExistentUser" });
-    expect(response.status).toBe(404);
-    expect(response.body.success).toBe(false);
-    expect(response.body.errors.receiver[0]).toBe("Receiver not found.");
-  });
 });
 
-describe("PUT /api/user/friend/request/:id", () => {});
+describe("PUT /api/user/friend/request/:id", () => {
+  let app: Express;
+
+  beforeEach(async () => {
+    app = express();
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    const u1 = await createUser("Haris", "pass");
+    await createUser("Bilal", "pass");
+    await createUser("Yasir", "pass");
+    if (u1 !== undefined) app.use("/", addMockUser(u1));
+    app.put(
+      "/:id",
+      validate(acceptFriendRequestBodySchema),
+      validate(friendRequestParamsSchema, "params"),
+      putFriendRequest,
+    );
+  });
+
+  afterEach(async () => {
+    await prisma.friendRequest.deleteMany({});
+    await prisma.user.deleteMany({});
+  });
+
+  it("should handle friend request acceptance", async () => {
+    const fr = await createFriendRequest("Bilal", "Haris");
+    const response = await request(app).put(`/${fr.id}`).send({ sender: "Bilal" });
+    expect(response.status).toBe(200);
+
+    const friendRequest = await prisma.friendRequest.findFirst({
+      where: { receiver: { username: "Haris" } },
+    });
+    expect(friendRequest).toBeNull();
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.message).toBe("Friend request responded successfully.");
+  });
+
+  it("should handle empty sender", async () => {
+    const response = await request(app).put("/1").send({ sender: "" });
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.sender[0]).toBe("Sender username can not be empty.");
+  });
+
+  it("should handle non-existent sender", async () => {
+    const fr = await createFriendRequest("Bilal", "Haris");
+    const response = await request(app).put(`/${fr.id}`).send({ sender: "NonExistentUser" });
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.sender[0]).toBe("Sender not found.");
+  });
+
+  it("should handle non-existent friend requests", async () => {
+    const fr = await createFriendRequest("Bilal", "Haris");
+    const response = await request(app)
+      .put(`/${fr.id + 10}`)
+      .send({ sender: "Bilal" });
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.friendRequest[0]).toBe("Friend request not found.");
+  });
+
+  it("should handle invalid request id", async () => {
+    const fr = await createFriendRequest("Bilal", "Yasir");
+    const response = await request(app).put(`/${fr.id}`).send({ sender: "Bilal" });
+    expect(response.status).toBe(422);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.friendRequest[0]).toBe("Friend request is not valid.");
+  });
+});
 
 describe("DELETE /api/user/friend/request/:id", () => {});
 

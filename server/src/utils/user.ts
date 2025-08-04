@@ -15,6 +15,15 @@ export async function createUser(username: string, password: string) {
   }
 }
 
+export async function createFriendRequest(sender: string, receiver: string) {
+  return await prisma.friendRequest.create({
+    data: {
+      sender: { connect: { username: sender } },
+      receiver: { connect: { username: receiver } },
+    },
+  });
+}
+
 export async function makeFriends(username1: string, username2: string) {
   return await prisma.user.update({
     where: { username: username1 },

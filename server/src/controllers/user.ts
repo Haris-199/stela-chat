@@ -207,7 +207,9 @@ export async function putFriendRequest(req: Request, res: Response, next: NextFu
     if (senderUser === null) {
       res.status(404).json({
         success: false,
-        message: "Sender not found.",
+        errors: {
+          sender: ["Sender not found."],
+        },
       });
       return;
     }
@@ -215,7 +217,9 @@ export async function putFriendRequest(req: Request, res: Response, next: NextFu
     if (senderUser.sentFriendRequests.length === 0) {
       res.status(404).json({
         success: false,
-        message: "Friend request not found.",
+        errors: {
+          friendRequest: ["Friend request not found."],
+        },
       });
       return;
     }
@@ -223,7 +227,9 @@ export async function putFriendRequest(req: Request, res: Response, next: NextFu
     if (senderUser.sentFriendRequests[0].receiverId !== receiver.id) {
       res.status(422).json({
         success: false,
-        message: "Friend request is not valid.",
+        errors: {
+          friendRequest: ["Friend request is not valid."],
+        },
       });
       return;
     }
