@@ -134,9 +134,13 @@ export async function getFriendRequest(req: Request, res: Response, next: NextFu
 export async function postFriendRequest(req: Request, res: Response, next: NextFunction) {
   try {
     const { receiver } = req.body;
+    const user = req.user!;
 
-    if (receiver === req.user!.username) {
-      res.status(400).json({ success: false, message: "Can not send friend request to yourself." });
+    if (receiver === user.username) {
+      res.status(400).json({
+        success: false,
+        errors: { receiver: ["Can not send friend request to yourself."] },
+      });
       return;
     }
 
@@ -146,30 +150,36 @@ export async function postFriendRequest(req: Request, res: Response, next: NextF
     });
 
     if (recipient === null) {
-      res.status(404).json({ success: false, message: "Receiver not found." });
+      res.status(404).json({
+        success: false,
+        errors: { receiver: ["Receiver not found."] },
+      });
       return;
     }
 
-    if (recipient.friends.some((friend) => friend.username === req.user!.username)) {
+    if (recipient.friends.some((friend) => friend.username === user.username)) {
       res.status(400).json({
         success: false,
-        message: `User is already friends with "${receiver}".`,
+        errors: { receiver: [`User is already friends with "${receiver}".`] },
       });
       return;
     }
 
     const existing = await prisma.friendRequest.findFirst({
-      where: { senderId: req.user!.id, receiver: { username: receiver } },
+      where: { senderId: user.id, receiver: { username: receiver } },
     });
 
     if (existing !== null) {
-      res.status(400).json({ success: false, message: "Request already exists." });
+      res.status(400).json({
+        success: false,
+        errors: { receiver: ["Request already exists."] },
+      });
       return;
     }
 
     await prisma.friendRequest.create({
       data: {
-        sender: { connect: { id: req.user!.id } },
+        sender: { connect: { id: user.id } },
         receiver: { connect: { username: receiver } },
       },
     });

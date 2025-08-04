@@ -15,6 +15,16 @@ export async function createUser(username: string, password: string) {
   }
 }
 
+export async function makeFriends(username1: string, username2: string) {
+  return await prisma.user.update({
+    where: { username: username1 },
+    data: {
+      friends: { connect: { username: username2 } },
+      friendOf: { connect: { username: username2 } },
+    },
+  });
+}
+
 export async function deleteUser(username: string) {
   return await prisma.user.delete({ where: { username } });
 }

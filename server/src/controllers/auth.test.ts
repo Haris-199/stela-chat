@@ -1,6 +1,5 @@
 import request from "supertest";
 import express, { Express } from "express";
-import bcrypt from "bcryptjs";
 import { postLogin, postRegister } from "./auth";
 import { prisma } from "../db/client";
 import validate from "../middleware/validate";
