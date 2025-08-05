@@ -269,7 +269,9 @@ export async function deleteFriendRequest(req: Request, res: Response, next: Nex
     if (request === null || request.receiverId !== user.id) {
       res.status(404).json({
         success: false,
-        message: "Friend request not found.",
+        errors: {
+          id: ["Friend request not found."],
+        }
       });
       return;
     }

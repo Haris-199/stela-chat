@@ -3,7 +3,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import { prisma } from "../db/client";
 import validate from "../middleware/validate";
 import { createFriendRequest, createUser, makeFriends } from "../utils/user";
-import { postFriendRequest, putFriendRequest } from "./user";
+import { deleteFriendRequest, postFriendRequest, putFriendRequest } from "./user";
 import {
   acceptFriendRequestBodySchema,
   friendRequestParamsSchema,
@@ -152,9 +152,59 @@ describe("PUT /api/user/friend/request/:id", () => {
   });
 });
 
-describe("DELETE /api/user/friend/request/:id", () => {});
+describe("DELETE /api/user/friend/request/:id", () => {
+  let app: Express;
 
-describe("DELETE /api/user/friend/:username", () => {});
+  beforeEach(async () => {
+    app = express();
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    const u1 = await createUser("Haris", "pass");
+    await createUser("Bilal", "pass");
+    if (u1 !== undefined) app.use("/", addMockUser(u1));
+    app.delete("/:id", validate(friendRequestParamsSchema, "params"), deleteFriendRequest);
+  });
+
+  afterEach(async () => {
+    await prisma.friendRequest.deleteMany({});
+    await prisma.user.deleteMany({});
+  });
+
+  it("should successfully delete a friend request", async () => {
+    const fr = await createFriendRequest("Bilal", "Haris");
+    const response = await request(app).delete(`/${fr.id}`);
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.message).toBe("Friend request canceled successfully.");
+
+    const deletedRequest = await prisma.friendRequest.findUnique({ where: { id: fr.id } });
+    expect(deletedRequest).toBeNull();
+  });
+
+  it("should handle non-existent friend request", async () => {
+    const fr = await createFriendRequest("Bilal", "Haris");
+    const response = await request(app).delete(`/${fr.id + 10}`);
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.id[0]).toBe("Friend request not found.");
+  });
+
+  it("should handle invalid friend request id", async () => {
+    const response = await request(app).delete("/invalid");
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.id[0]).toContain("Expected number");
+  });
+
+  it("should handle friend request id below 1", async () => {
+    const response = await request(app).delete("/0");
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.id[0]).toBe("Invalid friend request ID.");
+  });
+});
+
+describe.skip("DELETE /api/user/friend/:username", () => {});
 
 function addMockUser(user: any) {
   return (req: Request, res: Response, next: NextFunction) => {

@@ -9,5 +9,5 @@ export const acceptFriendRequestBodySchema = z.object({
 });
 
 export const friendRequestParamsSchema = z.object({
-  id: z.coerce.number().min(1, "Invalid user ID."),
+  id: z.coerce.number().min(1, "Invalid friend request ID."),
 });
