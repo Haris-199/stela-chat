@@ -11,3 +11,7 @@ export const acceptFriendRequestBodySchema = z.object({
 export const friendRequestParamsSchema = z.object({
   id: z.coerce.number().min(1, "Invalid friend request ID."),
 });
+
+export const usernameParamsSchema = z.object({
+  username: z.string().trim().min(1, "Username can not be empty."),
+});

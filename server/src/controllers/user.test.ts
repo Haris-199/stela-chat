@@ -3,11 +3,12 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import { prisma } from "../db/client";
 import validate from "../middleware/validate";
 import { createFriendRequest, createUser, makeFriends } from "../utils/user";
-import { deleteFriendRequest, postFriendRequest, putFriendRequest } from "./user";
+import { deleteFriend, deleteFriendRequest, postFriendRequest, putFriendRequest } from "./user";
 import {
   acceptFriendRequestBodySchema,
   friendRequestParamsSchema,
   sendFriendRequestSchema,
+  usernameParamsSchema,
 } from "./user.schema";
 
 describe("POST /api/user/friend/request", () => {
@@ -204,7 +205,53 @@ describe("DELETE /api/user/friend/request/:id", () => {
   });
 });
 
-describe.skip("DELETE /api/user/friend/:username", () => {});
+describe("DELETE /api/user/friend/:username", () => {
+  let app: Express;
+
+  beforeEach(async () => {
+    app = express();
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    const u1 = await createUser("Haris", "pass");
+    await createUser("Bilal", "pass");
+    if (u1 !== undefined) app.use("/", addMockUser(u1));
+    app.delete("/:username", validate(usernameParamsSchema, "params"), deleteFriend);
+  });
+
+  afterEach(async () => {
+    await prisma.friendRequest.deleteMany({});
+    await prisma.user.deleteMany({});
+  });
+
+  it("should successfully delete a friend", async () => {
+    await makeFriends("Haris", "Bilal");
+    const response = await request(app).delete("/Bilal");
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.message).toBe("Friend removed successfully.");
+  });
+
+  it("should not accept self-deletion", async () => {
+    const response = await request(app).delete("/Haris");
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.username[0]).toBe("Cannot remove yourself as a friend.");
+  });
+
+  it("should handle non-existent user", async () => {
+    const response = await request(app).delete("/NonExistentUser");
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.username[0]).toBe("User with username \"NonExistentUser\" not found.");
+  });
+
+  it("should handle non-existent friend", async () => {
+    const response = await request(app).delete("/Bilal");
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.errors.username[0]).toBe("User \"Haris\" is not friends with \"Bilal\".");
+  });
+});
 
 function addMockUser(user: any) {
   return (req: Request, res: Response, next: NextFunction) => {

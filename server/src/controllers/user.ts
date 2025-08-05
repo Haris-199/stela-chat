@@ -50,14 +50,14 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
 
 export async function getFriend(req: Request, res: Response, next: NextFunction) {
   try {
-    const friends = await prisma.user.findMany({
+    const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
       select: { friends: { orderBy: { username: "asc" }, select: { username: true } } },
     });
     res.status(200).json({
       success: true,
       message: "Friends retrieved successfully.",
-      data: friends[0]?.friends,
+      data: user!.friends,
     });
   } catch (error) {
     next(error);
@@ -72,7 +72,9 @@ export async function deleteFriend(req: Request, res: Response, next: NextFuncti
     if (username === user.username) {
       res.status(400).json({
         success: false,
-        message: "Cannot remove yourself as a friend.",
+        errors: {
+          username: ["Cannot remove yourself as a friend."],
+        },
       });
       return;
     }
@@ -83,9 +85,11 @@ export async function deleteFriend(req: Request, res: Response, next: NextFuncti
     });
 
     if (friend === null) {
-      res.status(400).json({
+      res.status(404).json({
         success: false,
-        message: `User with username "${username}" not found.`,
+        errors: {
+          username: [`User with username "${username}" not found.`],
+        },
       });
       return;
     }
@@ -93,7 +97,9 @@ export async function deleteFriend(req: Request, res: Response, next: NextFuncti
     if (!friend.friends.some((f) => f.id === user.id)) {
       res.status(400).json({
         success: false,
-        message: `User "${user.username}" is not friends with "${username}".`,
+        errors: {
+          username: [`User "${user.username}" is not friends with "${username}".`],
+        },
       });
       return;
     }
@@ -271,7 +277,7 @@ export async function deleteFriendRequest(req: Request, res: Response, next: Nex
         success: false,
         errors: {
           id: ["Friend request not found."],
-        }
+        },
       });
       return;
     }
