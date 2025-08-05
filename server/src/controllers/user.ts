@@ -224,7 +224,7 @@ export async function putFriendRequest(req: Request, res: Response, next: NextFu
       res.status(404).json({
         success: false,
         errors: {
-          friendRequest: ["Friend request not found."],
+          id: ["Friend request not found."],
         },
       });
       return;
@@ -234,7 +234,7 @@ export async function putFriendRequest(req: Request, res: Response, next: NextFu
       res.status(422).json({
         success: false,
         errors: {
-          friendRequest: ["Friend request is not valid."],
+          id: [`Friend request does not belong to "${receiver.username}".`],
         },
       });
       return;

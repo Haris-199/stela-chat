@@ -141,7 +141,7 @@ describe("PUT /api/user/friend/request/:id", () => {
       .send({ sender: "Bilal" });
     expect(response.status).toBe(404);
     expect(response.body.success).toBe(false);
-    expect(response.body.errors.friendRequest[0]).toBe("Friend request not found.");
+    expect(response.body.errors.id[0]).toBe("Friend request not found.");
   });
 
   it("should handle invalid request id", async () => {
@@ -149,7 +149,7 @@ describe("PUT /api/user/friend/request/:id", () => {
     const response = await request(app).put(`/${fr.id}`).send({ sender: "Bilal" });
     expect(response.status).toBe(422);
     expect(response.body.success).toBe(false);
-    expect(response.body.errors.friendRequest[0]).toBe("Friend request is not valid.");
+    expect(response.body.errors.id[0]).toBe("Friend request does not belong to \"Haris\".");
   });
 });
 
