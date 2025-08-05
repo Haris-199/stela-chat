@@ -1,10 +1,53 @@
 import request from "supertest";
 import express, { Express } from "express";
-import { postLogin, postRegister } from "./auth";
+import { postGuest, postLogin, postRegister } from "./auth";
 import { prisma } from "../db/client";
 import validate from "../middleware/validate";
 import { loginSchema, registerSchema } from "./auth.schema";
 import { createUser } from "../utils/user";
+
+describe("POST /api/auth/guest", () => {
+  let app: Express;
+
+  afterEach(async () => {
+    await prisma.user.deleteMany({});
+  });
+
+  beforeEach(async () => {
+    app = express();
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    app.post("/", postGuest);
+    await createUser("Haris", "pass");
+  });
+
+  it("should create a guest user", async () => {
+    const response = await request(app).post("/").send();
+    expect(response.status).toBe(201);
+    expect(response.text).toContain("token");
+    expect(response.body.message).toBe("Guest account created.");
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.user.username).toContain("Guest_");
+    expect(response.body.data.user.password).toBe(undefined);
+  });
+
+  it("should create unique names for guests", async () => {
+    const N = 100;
+    const requests = Array.from({ length: N }, () => request(app).post("/").send());
+    const response = (await Promise.all(requests))[0];
+
+    expect(response!.status).toBe(201);
+    expect(response!.text).toContain("token");
+    expect(response!.body.message).toBe("Guest account created.");
+    expect(response!.body.success).toBe(true);
+    expect(response!.body.data.user.username).toContain("Guest_");
+    expect(response!.body.data.user.password).toBe(undefined);
+
+    const users = await prisma.user.findMany({ where: { username: { startsWith: "Guest_" } } });
+    const uniqueUsernames = new Set(users.map((user) => user.username));
+    expect(uniqueUsernames.size).toBe(N);
+  });
+});
 
 describe("POST /api/auth/login", () => {
   let app: Express;
@@ -32,7 +75,6 @@ describe("POST /api/auth/login", () => {
     expect(response.body.success).toBe(true);
     expect(response.body.data.user.username).toBe("Haris");
     expect(response.body.data.user.password).toBe(undefined);
-
   });
 
   it("should handle wrong username", async () => {
@@ -84,28 +126,36 @@ describe("POST /api/auth/register", () => {
   });
 
   it("should register a user successfully", async () => {
-    const response = await request(app).post("/").send({ username: "user", password: "Password1!", confirmPassword: "Password1!" });
+    const response = await request(app)
+      .post("/")
+      .send({ username: "user", password: "Password1!", confirmPassword: "Password1!" });
     expect(response.status).toBe(200);
     expect(response.body.message).toBe("User successfully created.");
     expect(response.body.success).toBe(true);
   });
 
   it("should handle a taken username", async () => {
-    const response = await request(app).post("/").send({ username: "Haris", password: "Password1!", confirmPassword: "Password1!" });
+    const response = await request(app)
+      .post("/")
+      .send({ username: "Haris", password: "Password1!", confirmPassword: "Password1!" });
     expect(response.status).toBe(400);
     expect(response.body.errors.username[0]).toBe("Username is taken.");
     expect(response.body.success).toBe(false);
   });
 
   it("should handle empty username", async () => {
-    const response = await request(app).post("/").send({ username: "", password: "pass", confirmPassword: "pass" });
+    const response = await request(app)
+      .post("/")
+      .send({ username: "", password: "pass", confirmPassword: "pass" });
     expect(response.status).toBe(400);
     expect(response.body.errors.username[0]).toBe("Username is required.");
     expect(response.body.success).toBe(false);
   });
 
   it("should handle password less than 8 characters", async () => {
-    const response = await request(app).post("/").send({ username: "Haris", password: "short", confirmPassword: "short" });
+    const response = await request(app)
+      .post("/")
+      .send({ username: "Haris", password: "short", confirmPassword: "short" });
     expect(response.status).toBe(400);
     expect(response.body.errors.password[0]).toBe("Password must be at least 8 characters long.");
     expect(response.body.success).toBe(false);
@@ -134,7 +184,9 @@ describe("POST /api/auth/register", () => {
   });
 
   it("should handle password without a digit", async () => {
-    const response = await request(app).post("/").send({ username: "Haris", password: "NoDigit!", confirmPassword: "NoDigit!" });
+    const response = await request(app)
+      .post("/")
+      .send({ username: "Haris", password: "NoDigit!", confirmPassword: "NoDigit!" });
     expect(response.status).toBe(400);
     expect(response.body.errors.password[0]).toBe("Password must contain at least one number.");
     expect(response.body.success).toBe(false);

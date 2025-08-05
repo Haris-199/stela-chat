@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "../../prisma/generated/prisma/runtime/library";
 
 const { JWT_KEY } = process.env;
 
@@ -32,6 +34,45 @@ passport.use(
     }
   }),
 );
+
+export const postGuest = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let user;
+    while (true) {
+      try {
+        user = await prisma.user.create({
+          data: { username: `Guest_${Math.random().toString(36).slice(2, 10)}`, password: "" },
+        });
+        break;
+      } catch (error) {
+        if (error instanceof PrismaClientKnownRequestError) {
+          if (error.code === "P2002") continue; // Unique constraint failed
+        }
+        throw error;
+      }
+    }
+
+    const userPayload = {
+      id: user.id,
+      username: user.username,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    res.status(201).json({
+      success: true,
+      message: "Guest account created.",
+      data: {
+        token: jwt.sign(userPayload, JWT_KEY, {
+          expiresIn: 60 * 60 * 24, // 1 day
+        }),
+        user: userPayload,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const postLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { username, password } = req.body;

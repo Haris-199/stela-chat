@@ -6,8 +6,8 @@ export interface UserPayload {
     createdAt: Date;
     updatedAt: Date;
   };
-
 }
+
 export interface User {
   username: string;
 }
