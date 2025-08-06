@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "../../prisma/generated/prisma/runtime/library";
 
 const { JWT_KEY } = process.env;
@@ -41,7 +40,14 @@ export const postGuest = async (req: Request, res: Response, next: NextFunction)
     while (true) {
       try {
         user = await prisma.user.create({
-          data: { username: `Guest_${Math.random().toString(36).slice(2, 10)}`, password: "" },
+          data: {
+            username: `Guest_${Math.random().toString(36).slice(2, 10)}`,
+            password: "",
+            guestExpiry: new Date(Date.now() + 1000 * 30), // 30 seconds from now
+            // guestExpiry: new Date(Date.now() + 1000 * 60), // 1 minute from now
+            // guestExpiry: new Date(Date.now() + 1000 * 60 * 60), // 1 hour from now
+            // guestExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24), // 1 day from now
+          },
         });
         break;
       } catch (error) {
