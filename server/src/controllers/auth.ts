@@ -43,10 +43,7 @@ export const postGuest = async (req: Request, res: Response, next: NextFunction)
           data: {
             username: `Guest_${Math.random().toString(36).slice(2, 10)}`,
             password: "",
-            guestExpiry: new Date(Date.now() + 1000 * 30), // 30 seconds from now
-            // guestExpiry: new Date(Date.now() + 1000 * 60), // 1 minute from now
-            // guestExpiry: new Date(Date.now() + 1000 * 60 * 60), // 1 hour from now
-            // guestExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24), // 1 day from now
+            guestExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24), // 1 day
           },
         });
         break;

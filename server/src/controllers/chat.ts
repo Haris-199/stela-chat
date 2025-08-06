@@ -81,20 +81,20 @@ export async function getChatMessages(req: Request, res: Response, next: NextFun
 
 export async function postChatMessages(req: Request, res: Response, next: NextFunction) {
   const { chatId } = req.params;
-  const { message } = req.body;
+  const { text } = req.body;
   const user = req.user!;
 
   try {
     await prisma.message.create({
       data: {
-        text: message,
+        text: text,
         chatId: +chatId,
         userId: user.id,
       },
     });
     res.status(201).json({
       success: true,
-      message: "Message sent successfully.",
+      message: "Text sent successfully.",
     });
   } catch (error) {
     next(error);

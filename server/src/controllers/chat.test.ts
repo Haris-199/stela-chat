@@ -141,7 +141,7 @@ describe("POST /api/chat/:chatId/message", () => {
         };
         next();
       });
-      prisma.chat.create({
+      await prisma.chat.create({
         data: {
           name: "Test Chat",
           users: { connect: [{ id: u1.id }, { username: "Bilal" }] },
@@ -161,6 +161,24 @@ describe("POST /api/chat/:chatId/message", () => {
     await prisma.user.deleteMany({});
   });
 
+  it("should create a message in chat with valid data", async () => {
+    const chat = await prisma.chat.findFirst({ where: { name: "Test Chat" } });
+    if (!chat) throw new Error("Chat not found");
+
+    const response = await request(app).post(`/${chat.id}/message`).send({ text: "Hello, world!" });
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.message).toBe("Text sent successfully.");
+
+    const message = await prisma.message.findFirst({
+      where: { chatId: chat.id },
+      include: { sender: true },
+    });
+    expect(message).not.toBeNull();
+    expect(message?.text).toBe("Hello, world!");
+    expect(message?.sender.username).toBe("Haris");
+  });
+
   it("should not allow empty messages", async () => {
     const response = await request(app).post("/1/message").send({ text: "" });
     expect(response.status).toBe(400);
@@ -169,7 +187,9 @@ describe("POST /api/chat/:chatId/message", () => {
   });
 
   it("should not allow long messages", async () => {
-    const response = await request(app).post("/1/message").send({ text: "a".repeat(256) });
+    const response = await request(app)
+      .post("/1/message")
+      .send({ text: "a".repeat(256) });
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
     expect(response.body.errors.text[0]).toBe("Text is too long.");
