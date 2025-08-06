@@ -199,17 +199,17 @@ export async function createChat(user: UserPayload, name: string, users: string[
 
  * @param user - The user payload containing the user's token.
  * @param chatId - The ID of the chat to create the message in.
- * @param message - The text of the message to create.
+ * @param text - The text of the message to create.
  * @returns A promise that resolves to an `APISuccess`.
  * @throws If the request fails or the response is not ok.
  */
-export async function createMessageInChat(user: UserPayload, chatId: number, message: string) {
+export async function createMessageInChat(user: UserPayload, chatId: number, text: string) {
   // await new Promise((resolve) => setTimeout(resolve, 3000));
   // throw new Error("fail");
   const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ text }),
   });
 
   if (!res.ok) {
@@ -317,4 +317,18 @@ export async function register(username: string, password: string, confirmPasswo
   }
 
   return (await res.json()) as APISuccess | RegisterError;
+}
+
+/**
+ * Attempts to log in as a guest user.
+ *
+ * @returns A promise that resolves to an `APIResponse<UserPayload>` containing the guest user's data.
+ * @throws If the server responds with a status code >= 400.
+ */
+export async function guestLogin() {
+  const res = await fetch(`${URL}/api/auth/guest`, { method: "POST" });
+  if (res.status >= 400) {
+    throw new Error("Guest login failed.");
+  }
+  return (await res.json()) as APIResponse<UserPayload>;
 }

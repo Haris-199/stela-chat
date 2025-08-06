@@ -3,6 +3,7 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../services/api";
 import { RegisterError } from "../types";
+import GuestButton from "../components/GuestButton";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -180,20 +181,12 @@ export default function Register() {
             Sign in
           </Link>
         </p>
-        <div className="mt-4 border-t">
-          <h2 className="text-lg font-semibold text-center text-primary-700 py-3">Try now</h2>
-          <p className="text-sm text-gray-600 text-center mb-4">
+        <div className="mt-4 border-t flex flex-col items-center">
+          <h2 className="text-lg font-semibold text-primary-700 py-3">Try now</h2>
+          <p className="text-sm text-gray-600 mb-4">
             Want to explore without signing up? Sign in as a guest!
           </p>
-          <div className="flex justify-center">
-            <button
-              type="button"
-              className="py-2 px-6 bg-gray-200 hover:bg-primary-100 text-primary-700 font-semibold rounded-md shadow focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors"
-              onClick={() => console.log("Feature coming soon")}
-            >
-              Sign in as Guest
-            </button>
-          </div>
+          <GuestButton className="py-2 px-6 bg-gray-200 hover:bg-primary-100 text-primary-700 font-semibold rounded-md shadow focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors" />
         </div>
       </div>
     </main>

@@ -5,6 +5,7 @@ import { Lock, X, User2 } from "lucide-react";
 import { setItem } from "../services/localStorage";
 import AuthContext from "../contexts/AuthContext";
 import { LoginError } from "../types";
+import GuestButton from "../components/GuestButton";
 
 export default function Login() {
   const [attempt, setAttempt] = useState<LoginError>();
@@ -45,7 +46,9 @@ export default function Login() {
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="user123"
                 autoComplete="username"
-                aria-invalid={!!attempt && attempt.errors.username && attempt.errors.username.length > 0}
+                aria-invalid={
+                  !!attempt && attempt.errors.username && attempt.errors.username.length > 0
+                }
                 aria-describedby="username-error"
               />
               {attempt && attempt.errors.username && attempt.errors.username.length > 0 && (
@@ -81,7 +84,9 @@ export default function Login() {
                 required
                 className="w-full pl-10 pr-11 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-400"
                 placeholder="••••••••••"
-                aria-invalid={!!attempt && attempt.errors.password && attempt.errors.password.length > 0}
+                aria-invalid={
+                  !!attempt && attempt.errors.password && attempt.errors.password.length > 0
+                }
                 aria-describedby="password-error"
               />
               {attempt && attempt.errors.password && attempt.errors.password.length > 0 && (
@@ -114,20 +119,12 @@ export default function Login() {
             Register
           </Link>
         </p>
-        <div className="mt-4 border-t">
-          <h2 className="text-lg font-semibold text-center text-primary-700 py-3">Try now</h2>
-          <p className="text-sm text-gray-600 text-center mb-4">
+        <div className="mt-4 border-t flex flex-col items-center">
+          <h2 className="text-lg font-semibold text-primary-700 py-3">Try now</h2>
+          <p className="text-sm text-gray-600 mb-4">
             Want to explore without signing up? Sign in as a guest!
           </p>
-          <div className="flex justify-center">
-            <button
-              type="button"
-              className="py-2 px-6 bg-gray-200 hover:bg-primary-100 text-primary-700 font-semibold rounded-md shadow focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors"
-              onClick={() => console.log("Feature coming soon")}
-            >
-              Sign in as Guest
-            </button>
-          </div>
+          <GuestButton className="py-2 px-6 bg-gray-200 hover:bg-primary-100 text-primary-700 font-semibold rounded-md shadow focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors" />
         </div>
       </div>
     </main>

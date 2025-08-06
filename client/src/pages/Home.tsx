@@ -4,6 +4,7 @@ import { UserPlus, LogIn } from "lucide-react";
 import AuthContext from "../contexts/AuthContext";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import GuestButton from "../components/GuestButton";
 
 export default function Home() {
   const { userData } = useContext(AuthContext);
@@ -44,12 +45,7 @@ export default function Home() {
               <div className="text-primary-700 font-medium text-base mt-2">
                 Or try Stela Chat without signing up:
               </div>
-              <Link
-                className="self-center inline-block px-8 py-3 bg-primary-600 text-white text-lg font-bold rounded-lg shadow hover:bg-primary-700 transition-colors"
-                to="/chat"
-              >
-                Try Now
-              </Link>
+              <GuestButton className="self-center inline-block px-8 py-3 bg-primary-600 text-white text-lg font-bold rounded-lg shadow hover:bg-primary-700 transition-colors" />
             </div>
           ) : (
             <Link
