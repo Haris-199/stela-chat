@@ -39,10 +39,11 @@ export const postGuest = async (req: Request, res: Response, next: NextFunction)
     let user;
     while (true) {
       try {
+        const hashedPassword = await bcrypt.hash("password", 10);
         user = await prisma.user.create({
           data: {
             username: `Guest_${Math.random().toString(36).slice(2, 10)}`,
-            password: "",
+            password: hashedPassword,
             guestExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24), // 1 day
           },
         });
@@ -103,13 +104,15 @@ export const postLogin = async (req: Request, res: Response, next: NextFunction)
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       };
-
       res.json({
         success: true,
         message: "Logged in successfully.",
         data: {
           token: jwt.sign(userPayload, JWT_KEY, {
-            expiresIn: 60 * 60 * 24 * 7, // 7 days
+            expiresIn:
+              user.guestExpiry === null
+                ? 60 * 60 * 24 * 7 // 7 days
+                : Math.max(Math.floor((user.guestExpiry.getTime() - Date.now()) / 1000), 0), // Remaining time for guest users
           }),
           user: userPayload,
         },
