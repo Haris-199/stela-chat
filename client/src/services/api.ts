@@ -263,7 +263,8 @@ export async function getChats(user: UserPayload) {
  * @param token - The JWT token to verify.
  * @returns A promise that resolves to `true` if the token is valid, or `false` otherwise.
  */
-export async function verify(user: UserPayload) {
+export async function isValid(user: UserPayload) {
+  await new Promise((resolve) => setTimeout(resolve, 5000));
   const res = await fetch(`${URL}/api/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },

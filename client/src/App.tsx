@@ -2,7 +2,7 @@ import { RouterProvider } from "react-router-dom";
 import router from "./router.tsx";
 import AuthContext from "./contexts/AuthContext.tsx";
 import { useEffect, useState } from "react";
-import { verify } from "./services/api";
+import { isValid } from "./services/api";
 import { getItem, removeItem } from "./services/localStorage";
 import { UserPayload } from "./types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -14,7 +14,7 @@ export default function App() {
 
   useEffect(() => {
     if (userData !== undefined) {
-      verify(userData).then((isValid) => {
+      isValid(userData).then((isValid) => {
         if (!isValid) {
           removeItem("user");
           setUserData(undefined);
