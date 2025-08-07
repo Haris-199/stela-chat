@@ -6,7 +6,7 @@ import ChatMessages from "../components/ChatMessages";
 import Options from "../components/Options";
 import { Chat as ChatType } from "../types";
 import { useAuth } from "../hooks/useAuth";
-import Spinner from "../components/Spinner";
+import LoadingPage from "./LoadingPage";
 
 export default function Chat() {
   const { userData, isAuthenticating } = useAuth();
@@ -16,10 +16,7 @@ export default function Chat() {
 
   if (isAuthenticating) {
     return (
-      <div className="flex flex-col items-center justify-center">
-        <h1>Loading</h1>
-        <Spinner />
-      </div>
+      <LoadingPage />
     );
   }
 
