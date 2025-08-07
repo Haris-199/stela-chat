@@ -22,14 +22,17 @@ const URL = "http://localhost:3000";
  * @throws If the request fails or the response is not ok.
  */
 export async function getIncomingFriendRequests(user: UserPayload) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend/request`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
-  if (!res.ok) {
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized" } as APIError;
+  } else if (!res.ok) {
     throw new Error(`Failed to fetch incoming friend requests for ${user.user.username}.`);
   }
+
   return (await res.json()) as APIResponse<FriendRequest[]>;
 }
 
@@ -48,9 +51,13 @@ export async function sendFriendRequest(user: UserPayload, receiver: string) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
     body: JSON.stringify({ receiver }),
   });
-  if (res.status >= 500) {
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized" } as APIError;
+  } else if (!res.ok) {
     throw new Error(`Failed to send friend request to ${receiver}.`);
   }
+
   return (await res.json()) as APISuccess | APIError;
 }
 
@@ -60,7 +67,7 @@ export async function sendFriendRequest(user: UserPayload, receiver: string) {
  * @param user - The user payload containing the user's token.
  * @param requestId - The ID of the friend request to respond to.
  * @param sender - The username of the user who sent the friend request.
- * @returns A promise that resolves to an `APISuccess` object on success or an error message on failure.
+ * @returns A promise that resolves to an `APISuccess` object on success or an `APIError`.
  * @throws If the request fails or the server responds with a status code >= 500.
  */
 export async function acceptFriendRequest(user: UserPayload, requestId: number, sender: string) {
@@ -70,9 +77,15 @@ export async function acceptFriendRequest(user: UserPayload, requestId: number, 
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
     body: JSON.stringify({ sender }),
   });
-  if (res.status >= 500) {
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
+
+  if (!res.ok) {
     throw new Error(`Failed to accept friend request ${requestId}.`);
   }
+
   return (await res.json()) as APISuccess | APIError;
 }
 
@@ -90,7 +103,12 @@ export async function cancelFriendRequest(user: UserPayload, requestId: number) 
     method: "DELETE",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
-  if (res.status >= 500) {
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
+
+  if (!res.ok) {
     throw new Error(`Failed to delete friend request ${requestId}.`);
   }
   return (await res.json()) as APISuccess | APIError;
@@ -110,9 +128,15 @@ export async function deleteFriend(user: UserPayload, username: string) {
     method: "DELETE",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
-  if (res.status >= 500) {
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
+
+  if (!res.ok) {
     throw new Error(`Failed to delete friend ${username}.`);
   }
+
   return (await res.json()) as APISuccess | APIError;
 }
 
@@ -120,7 +144,7 @@ export async function deleteFriend(user: UserPayload, username: string) {
  * Fetches the friends of a user from the backend.
  *
  * @param user - The user payload containing the user's token and username.
- * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of friends.
+ * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of friends or an `APIError`.
  * @throws If the request fails or the response is not ok.
  */
 export async function getUsersFriends(user: UserPayload) {
@@ -128,9 +152,14 @@ export async function getUsersFriends(user: UserPayload) {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
   if (!res.ok) {
     throw new Error(`Failed to fetch friends of ${user.user.username}.`);
   }
+
   return (await res.json()) as APIResponse<User[]>;
 }
 
@@ -142,7 +171,7 @@ export async function getUsersFriends(user: UserPayload) {
  *   - `includeSelf`: If true, includes the user themselves in the list.
  *   - `excludeFriends`: If true, excludes friends from the list.
  *   - `omitUsersWithPendingFriendRequests`: If true, omits users who have pending friend requests from the list.
- * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of users.
+ * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of users or an `APIError`.
  * @throws If the request fails or the response is not ok.
  */
 export async function getUsers(
@@ -163,9 +192,14 @@ export async function getUsers(
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
   if (!res.ok) {
     throw new Error("Failed to fetch users.");
   }
+
   return (await res.json()) as APIResponse<User[]>;
 }
 
@@ -175,7 +209,7 @@ export async function getUsers(
  * @param user - The user payload containing the user's token.
  * @param name - The name of the chat to create.
  * @param users - An array of usernames to add to the chat.
- * @returns A promise that resolves to an `APIResponse<Chat>` containing the created chat.
+ * @returns A promise that resolves to an `APIResponse<Chat>` containing the created chat or an `APIError`.
  * @throws If the request fails or the response is not ok.
  */
 export async function createChat(user: UserPayload, name: string, users: string[]) {
@@ -187,6 +221,9 @@ export async function createChat(user: UserPayload, name: string, users: string[
     body: JSON.stringify({ name, users: users.map((username) => ({ username })) }),
   });
 
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
   if (res.status >= 500) {
     throw new Error("Failed to create chat, server error.");
   }
@@ -200,18 +237,19 @@ export async function createChat(user: UserPayload, name: string, users: string[
  * @param user - The user payload containing the user's token.
  * @param chatId - The ID of the chat to create the message in.
  * @param text - The text of the message to create.
- * @returns A promise that resolves to an `APISuccess`.
+ * @returns A promise that resolves to an `APISuccess` or an `APIError`.
  * @throws If the request fails or the response is not ok.
  */
 export async function createMessageInChat(user: UserPayload, chatId: number, text: string) {
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
-  // throw new Error("fail");
   const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
     body: JSON.stringify({ text }),
   });
 
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
   if (!res.ok) {
     throw new Error("Failed to create message.");
   }
@@ -224,7 +262,7 @@ export async function createMessageInChat(user: UserPayload, chatId: number, tex
  *
  * @param user - The user payload containing the user's token.
  * @param chatId - The ID of the chat to fetch messages for.
- * @returns A promise that resolves to an `APIResponse<Message[]>` containing the list of messages.
+ * @returns A promise that resolves to an `APIResponse<Message[]>` containing the list of messages or an `APIError`.
  * @throws If the request fails or the response is not ok.
  */
 export async function getMessagesOfChat(user: UserPayload, chatId: number) {
@@ -233,9 +271,14 @@ export async function getMessagesOfChat(user: UserPayload, chatId: number) {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
   if (!res.ok) {
     throw new Error("Failed to fetch messages for chat.");
   }
+
   return (await res.json()) as APIResponse<Message[]>;
 }
 
@@ -243,7 +286,7 @@ export async function getMessagesOfChat(user: UserPayload, chatId: number) {
  * Fetches the list of  for a given user.
  *
  * @param user - The user payload containing the user's token.
- * @returns A promise that resolves to an `APIResponse` containing the list of chats.
+ * @returns A promise that resolves to an `APIResponse` containing the list of chats or an `APIError`.
  * @throws If the request fails or the response is not ok.
  */
 export async function getChats(user: UserPayload) {
@@ -251,9 +294,14 @@ export async function getChats(user: UserPayload) {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
   });
+
+  if (res.status === 401) {
+    return { success: false, message: "Unauthorized." } as APIError;
+  }
   if (!res.ok) {
     throw new Error("Failed to fetch chats.");
   }
+
   return (await res.json()) as APIResponse<Chat[]>;
 }
 
