@@ -1,19 +1,21 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Ghost } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
-export default function NotFound() {
+export default function ServerError() {
   const { userData } = useAuth();
   const navigate = useNavigate();
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary-100 via-primary-300 to-primary-400">
-      <div className="flex flex-col items-center justify-center p-8 rounded-2xl shadow-xl bg-white">
-        <h1 className="text-6xl font-extrabold text-primary-700 mb-2">404</h1>
-        <p className="text-xl text-primary-600 mb-6">
-          Oops! The page you're looking for doesn't exist.
+      <div className="flex flex-col items-center justify-center p-8 rounded-2xl shadow-xl bg-white/90">
+        <h1 className="text-5xl font-bold text-red-600 mb-2">Server Error</h1>
+        <p className="text-lg text-red-600 text-center">
+          Sorry, something went wrong on our end.
+          <br />
+          Please try again later.
         </p>
-        <Ghost className="w-20 h-20 text-primary-400 mt-3 mb-5 animate-bounce" />
+        <AlertTriangle className="w-20 h-20 text-red-500 my-3 animate-pulse" />
         <nav className="flex flex-wrap gap-3 justify-center">
           {userData === undefined ? (
             <Link
