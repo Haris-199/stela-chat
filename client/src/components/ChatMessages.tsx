@@ -6,6 +6,7 @@ import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { Smile, Send } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import useRedirectOnFail from "../hooks/useRedirectOnFail";
 
 export default function ChatMessages({
   userData,
@@ -23,18 +24,19 @@ export default function ChatMessages({
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {handleGetReq, handlePostReq} = useRedirectOnFail();
 
   const {
     data: msgs,
     isLoading,
     error: getError,
   } = useQuery({
-    queryFn: () => getMessagesOfChat(userData, chatId).then((res) => res.data),
-    queryKey: ["Messages", chatId, userData],
+    queryFn: () => getMessagesOfChat(userData, chatId).then(handleGetReq),
+    queryKey: ["Messages", chatId, userData, handleGetReq],
   });
 
   const { mutateAsync, isPending: sendingMessage } = useMutation({
-    mutationFn: () => createMessageInChat(userData, chatId, textInput),
+    mutationFn: () => createMessageInChat(userData, chatId, textInput).then(handlePostReq),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] }),
   });
 

@@ -5,6 +5,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import CreateChatModal from "./CreateChatModal";
+import useRedirectOnFail from "../hooks/useRedirectOnFail";
 
 export default function ChatSidebar({
   userData,
@@ -15,13 +16,14 @@ export default function ChatSidebar({
   chatId: number | undefined;
   setCurrentChat: (chat: Chat | null) => void;
 }) {
+  const { handleGetReq } = useRedirectOnFail();
   const {
     data: chats,
     isPending,
     error,
   } = useQuery({
-    queryFn: () => getChats(userData).then((res) => res.data),
-    queryKey: ["chats", userData],
+    queryFn: () => getChats(userData).then(handleGetReq),
+    queryKey: ["chats", userData, handleGetReq],
   });
 
   useEffect(() => {

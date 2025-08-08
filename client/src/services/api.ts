@@ -19,7 +19,7 @@ const URL = "http://localhost:3000";
  *
  * @param user - The user payload containing the user's token and username.
  * @returns A promise that resolves to an `APIResponse<FriendRequest[]>` containing a list of incoming friend requests or a `APIError`.
- * @throws If the request fails or the response is not ok.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function getIncomingFriendRequests(user: UserPayload) {
   const res = await fetch(`${URL}/api/user/friend/request`, {
@@ -42,10 +42,9 @@ export async function getIncomingFriendRequests(user: UserPayload) {
  * @param user - The user payload containing the user's token.
  * @param receiver - The username of the user to send the friend request to.
  * @returns A promise that resolves to an `APISuccess` or `APIError` object on success or an error message on failure.
- * @throws If the request fails or the server responds with a status code >= 500.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function sendFriendRequest(user: UserPayload, receiver: string) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend/request`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -68,10 +67,9 @@ export async function sendFriendRequest(user: UserPayload, receiver: string) {
  * @param requestId - The ID of the friend request to respond to.
  * @param sender - The username of the user who sent the friend request.
  * @returns A promise that resolves to an `APISuccess` object on success or an `APIError`.
- * @throws If the request fails or the server responds with a status code >= 500.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function acceptFriendRequest(user: UserPayload, requestId: number, sender: string) {
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend/request/${requestId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -95,10 +93,9 @@ export async function acceptFriendRequest(user: UserPayload, requestId: number, 
  * @param user - The user payload containing the user's token.
  * @param requestId - The ID of the friend request to delete.
  * @returns A promise that resolves to an `APISuccess` or `APIError`.
- * @throws If the request fails or the server responds with a status code >= 500.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function cancelFriendRequest(user: UserPayload, requestId: number) {
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend/request/${requestId}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -120,10 +117,9 @@ export async function cancelFriendRequest(user: UserPayload, requestId: number) 
  * @param user - The user payload containing the user's token.
  * @param username - The username of the friend to delete.
  * @returns A promise that resolves to an `APISuccess` or `APIError`.
- * @throws If the server responds with a status code >= 500.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function deleteFriend(user: UserPayload, username: string) {
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/user/friend/${username}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -132,7 +128,6 @@ export async function deleteFriend(user: UserPayload, username: string) {
   if (res.status === 401) {
     return { success: false, message: "Unauthorized." } as APIError;
   }
-
   if (!res.ok) {
     throw new Error(`Failed to delete friend ${username}.`);
   }
@@ -145,7 +140,7 @@ export async function deleteFriend(user: UserPayload, username: string) {
  *
  * @param user - The user payload containing the user's token and username.
  * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of friends or an `APIError`.
- * @throws If the request fails or the response is not ok.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function getUsersFriends(user: UserPayload) {
   const res = await fetch(`${URL}/api/user/friend`, {
@@ -172,7 +167,7 @@ export async function getUsersFriends(user: UserPayload) {
  *   - `excludeFriends`: If true, excludes friends from the list.
  *   - `omitUsersWithPendingFriendRequests`: If true, omits users who have pending friend requests from the list.
  * @returns A promise that resolves to an `APIResponse<User[]>` containing the list of users or an `APIError`.
- * @throws If the request fails or the response is not ok.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function getUsers(
   user: UserPayload,
@@ -210,11 +205,9 @@ export async function getUsers(
  * @param name - The name of the chat to create.
  * @param users - An array of usernames to add to the chat.
  * @returns A promise that resolves to an `APIResponse<Chat>` containing the created chat or an `APIError`.
- * @throws If the request fails or the response is not ok.
+ * @throws If the request fails or the response status >= 500.
  */
 export async function createChat(user: UserPayload, name: string, users: string[]) {
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
-  // throw new Error("fail");
   const res = await fetch(`${URL}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -238,7 +231,7 @@ export async function createChat(user: UserPayload, name: string, users: string[
  * @param chatId - The ID of the chat to create the message in.
  * @param text - The text of the message to create.
  * @returns A promise that resolves to an `APISuccess` or an `APIError`.
- * @throws If the request fails or the response is not ok.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function createMessageInChat(user: UserPayload, chatId: number, text: string) {
   const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
@@ -263,10 +256,9 @@ export async function createMessageInChat(user: UserPayload, chatId: number, tex
  * @param user - The user payload containing the user's token.
  * @param chatId - The ID of the chat to fetch messages for.
  * @returns A promise that resolves to an `APIResponse<Message[]>` containing the list of messages or an `APIError`.
- * @throws If the request fails or the response is not ok.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function getMessagesOfChat(user: UserPayload, chatId: number) {
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await fetch(`${URL}/api/chat/${chatId}/message`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },
@@ -287,7 +279,7 @@ export async function getMessagesOfChat(user: UserPayload, chatId: number) {
  *
  * @param user - The user payload containing the user's token.
  * @returns A promise that resolves to an `APIResponse` containing the list of chats or an `APIError`.
- * @throws If the request fails or the response is not ok.
+ * @throws If the request fails or the response is not ok and the status is not 401.
  */
 export async function getChats(user: UserPayload) {
   const res = await fetch(`${URL}/api/chat`, {
@@ -310,9 +302,9 @@ export async function getChats(user: UserPayload) {
  *
  * @param token - The JWT token to verify.
  * @returns A promise that resolves to `true` if the token is valid, or `false` otherwise.
+ * @throws If the request fails.
  */
 export async function isValid(user: UserPayload) {
-  // await new Promise((resolve) => setTimeout(resolve, 5000));
   const res = await fetch(`${URL}/api/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${user.token}` },

@@ -23,25 +23,27 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FriendRequest, User, UserPayload } from "../types";
 import Spinner from "./Spinner";
+import useRedirectOnFail from "../hooks/useRedirectOnFail";
 
 export default function UsersModal() {
   const { userData } = useContext(AuthContext);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mode, setMode] = useState<"users" | "friends" | "requests">("users");
+  const { handleGetReq } = useRedirectOnFail();
   const { data: list, isPending } = useQuery<User[] | FriendRequest[]>({
-    queryKey: [mode,  "excludeUsersFriends", "omitUsersWithPendingFriendRequests"],
-    queryFn: () => {
+    queryKey: [mode, "excludeUsersFriends", "omitUsersWithPendingFriendRequests"],
+    queryFn: async () => {
       switch (mode) {
         case "friends":
-          return getUsersFriends(userData!).then((res) => res.data);
+          return getUsersFriends(userData!).then(handleGetReq);
         case "requests":
-          return getIncomingFriendRequests(userData!).then((res) => res.data);
+          return getIncomingFriendRequests(userData!).then(handleGetReq);
         case "users":
         default:
           return getUsers(userData!, {
             excludeFriends: true,
             omitUsersWithPendingFriendRequests: true,
-          }).then((res) => res.data);
+          }).then(handleGetReq);
       }
     },
   });
@@ -192,8 +194,11 @@ function EmptyList({ mode }: { mode: "users" | "friends" | "requests" }) {
 
 function UsersListItem({ userData, user }: { userData: UserPayload; user: User }) {
   const queryClient = useQueryClient();
+  const { handlePostReq } = useRedirectOnFail();
+
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: ({ receiver }: { receiver: string }) => sendFriendRequest(userData, receiver),
+    mutationFn: ({ receiver }: { receiver: string }) =>
+      sendFriendRequest(userData, receiver).then(handlePostReq),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["users"] }),
   });
 
@@ -226,8 +231,10 @@ function UsersListItem({ userData, user }: { userData: UserPayload; user: User }
 
 function FriendsListItem({ userData, user }: { userData: UserPayload; user: User }) {
   const queryClient = useQueryClient();
+  const { handlePostReq } = useRedirectOnFail();
+
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => deleteFriend(userData, user.username),
+    mutationFn: () => deleteFriend(userData, user.username).then(handlePostReq),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["friends"] }),
   });
 
@@ -266,14 +273,15 @@ function RequestsListItem({
   request: FriendRequest;
 }) {
   const queryClient = useQueryClient();
+  const {handlePostReq} = useRedirectOnFail()
 
   const { mutateAsync: acceptRequest, isPending: acceptPending } = useMutation({
-    mutationFn: () => acceptFriendRequest(userData, request.id, request.username),
+    mutationFn: () => acceptFriendRequest(userData, request.id, request.username).then(handlePostReq),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
   });
 
   const { mutateAsync: cancelRequest, isPending: cancelPending } = useMutation({
-    mutationFn: () => cancelFriendRequest(userData, request.id),
+    mutationFn: () => cancelFriendRequest(userData, request.id).then(handlePostReq),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
   });
 

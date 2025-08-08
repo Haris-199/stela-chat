@@ -7,6 +7,7 @@ import Spinner from "./Spinner";
 import { createChat, getUsers, getUsersFriends } from "../services/api";
 import AuthContext from "../contexts/AuthContext";
 import { UserPayload } from "../types";
+import useRedirectOnFail from "../hooks/useRedirectOnFail";
 
 export default function CreateChatModal() {
   const navigate = useNavigate();
@@ -25,6 +26,9 @@ export default function CreateChatModal() {
       const res = await createChat(userData!, name, users);
 
       if (!res.success) {
+        if ("message" in res && res.message === "Unauthorized.") {
+          navigate("/login");
+        }
         return { fieldData: { name, users } };
       }
 
@@ -123,16 +127,17 @@ function UsersCheckbox({
   userData: UserPayload;
   defaultValues: string[] | undefined;
 }) {
+  const { handleGetReq } = useRedirectOnFail();
   const [mode, setMode] = useState<"friends" | "users">("friends");
   const { data: list, isPending } = useQuery({
     queryKey: [mode],
     queryFn: () => {
       switch (mode) {
         case "users":
-          return getUsers(userData).then((res) => res.data);
+          return getUsers(userData).then(handleGetReq);
         case "friends":
         default:
-          return getUsersFriends(userData).then((res) => res.data);
+          return getUsersFriends(userData).then(handleGetReq);
       }
     },
   });
