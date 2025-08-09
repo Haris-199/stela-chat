@@ -34,9 +34,7 @@ worker.on("error", (error) => {
   worker.terminate();
 });
 worker.on("exit", (code) => {
-  if (code !== 0) {
-    console.error(`Worker stopped with exit code ${code}`);
-  }
+  if (code !== 0) console.error(`Worker stopped with exit code ${code}`);
 });
 
 app.listen(PORT, () => {
