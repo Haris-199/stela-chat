@@ -1,4 +1,5 @@
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Users,
   UserPlus,
@@ -9,24 +10,21 @@ import {
   Frown,
   UserMinus,
 } from "lucide-react";
-import AuthContext from "../contexts/AuthContext";
 import Avatar from "./Avatar";
 import {
-  acceptFriendRequest,
-  cancelFriendRequest,
-  deleteFriend,
-  getIncomingFriendRequests,
   getUsers,
   getUsersFriends,
+  getIncomingFriendRequests,
   sendFriendRequest,
+  deleteFriend,
+  acceptFriendRequest,
+  cancelFriendRequest,
 } from "../services/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FriendRequest, User, UserPayload } from "../types";
 import Spinner from "./Spinner";
 import useRedirectOnFail from "../hooks/useRedirectOnFail";
+import { FriendRequest, User, UserPayload } from "../types";
 
-export default function UsersModal() {
-  const { userData } = useContext(AuthContext);
+export default function UsersModal({ userData }: { userData: UserPayload }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mode, setMode] = useState<"users" | "friends" | "requests">("users");
   const { handleGetReq } = useRedirectOnFail();
@@ -35,12 +33,12 @@ export default function UsersModal() {
     queryFn: async () => {
       switch (mode) {
         case "friends":
-          return getUsersFriends(userData!).then(handleGetReq);
+          return getUsersFriends(userData).then(handleGetReq);
         case "requests":
-          return getIncomingFriendRequests(userData!).then(handleGetReq);
+          return getIncomingFriendRequests(userData).then(handleGetReq);
         case "users":
         default:
-          return getUsers(userData!, {
+          return getUsers(userData, {
             excludeFriends: true,
             omitUsersWithPendingFriendRequests: true,
           }).then(handleGetReq);
@@ -141,15 +139,15 @@ export default function UsersModal() {
                 <EmptyList mode={mode} />
               ) : mode === "users" ? (
                 list.map((user) => (
-                  <UsersListItem key={user.username} userData={userData!} user={user} />
+                  <UsersListItem key={user.username} userData={userData} user={user} />
                 ))
               ) : mode === "friends" ? (
                 list.map((user) => (
-                  <FriendsListItem key={user.username} userData={userData!} user={user} />
+                  <FriendsListItem key={user.username} userData={userData} user={user} />
                 ))
               ) : (
                 (list as FriendRequest[]).map((request) => (
-                  <RequestsListItem key={request.username} userData={userData!} request={request} />
+                  <RequestsListItem key={request.username} userData={userData} request={request} />
                 ))
               )}
             </ul>
@@ -273,10 +271,11 @@ function RequestsListItem({
   request: FriendRequest;
 }) {
   const queryClient = useQueryClient();
-  const {handlePostReq} = useRedirectOnFail()
+  const { handlePostReq } = useRedirectOnFail();
 
   const { mutateAsync: acceptRequest, isPending: acceptPending } = useMutation({
-    mutationFn: () => acceptFriendRequest(userData, request.id, request.username).then(handlePostReq),
+    mutationFn: () =>
+      acceptFriendRequest(userData, request.id, request.username).then(handlePostReq),
     onSuccess: () => queryClient.refetchQueries({ queryKey: ["requests"] }),
   });
 
