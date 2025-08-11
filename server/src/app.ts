@@ -5,8 +5,10 @@ import cors from "cors";
 import router from "./routes";
 import { Worker } from "worker_threads";
 import http from "http";
-import "dotenv/config";
 import { setupSocket } from "./socket";
+import rateLimit from "express-rate-limit";
+import slowDown  from "express-slow-down";
+import "dotenv/config";
 
 const PORT = Number(process.env.PORT) || 3000;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
@@ -25,6 +27,23 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(
+  rateLimit({
+    windowMs: 1000 * 60 * 10, // 10 minutes
+    limit: 75,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+  }),
+);
+app.use(
+  slowDown({
+    windowMs: 1000 * 60 * 10, // 10 minutes
+    delayAfter: 25,
+    delayMs: () => 1000,
+    maxDelayMs: 5000,
+  }),
+);
+
 app.use("/api", router);
 
 const worker = new Worker("./src/utils/cronjobs.js");
