@@ -1,11 +1,12 @@
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import Message from "./Message";
 import { createMessageInChat, getMessagesOfChat } from "../services/api";
 import { Chat, UserPayload } from "../types";
-import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
-import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { Smile, Send } from "lucide-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import socket from "../services/socket";
 import useRedirectOnFail from "../hooks/useRedirectOnFail";
 
 export default function ChatMessages({
@@ -24,7 +25,7 @@ export default function ChatMessages({
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const {handleGetReq, handlePostReq} = useRedirectOnFail();
+  const { handleGetReq, handlePostReq } = useRedirectOnFail();
 
   const {
     data: msgs,
@@ -33,11 +34,36 @@ export default function ChatMessages({
   } = useQuery({
     queryFn: () => getMessagesOfChat(userData, chatId).then(handleGetReq),
     queryKey: ["Messages", chatId, userData, handleGetReq],
+    staleTime: Infinity,
   });
+
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, [chatId]);
+
+  useEffect(() => {
+    socket.emit("joinChat", chatId);
+  }, [chatId]);
+
+  useEffect(() => {
+    function invalidateMessages() {
+      queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] });
+    }
+    socket.on("receiveMessage", invalidateMessages);
+    return () => {
+      socket.off("receiveMessage", invalidateMessages);
+    };
+  }, [chatId, queryClient, userData]);
 
   const { mutateAsync, isPending: sendingMessage } = useMutation({
     mutationFn: () => createMessageInChat(userData, chatId, textInput).then(handlePostReq),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] }),
+    onSuccess: () => {
+      socket.volatile.emit("sendMessage", chatId, textInput);
+      queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] });
+    },
   });
 
   useEffect(() => {
@@ -49,6 +75,10 @@ export default function ChatMessages({
   useEffect(() => {
     if (!emojiPanelOpen) textAreaRef.current?.focus();
   }, [emojiPanelOpen]);
+
+  socket.on("connect_error", () => {
+    navigate("/login");
+  });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -80,9 +110,7 @@ export default function ChatMessages({
     console.error(getError);
   }
 
-  if (isLoading) {
-    return <SkeletonLoader />;
-  }
+  if (isLoading) return <SkeletonLoader />;
 
   return (
     <>

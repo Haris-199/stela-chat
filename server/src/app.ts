@@ -4,7 +4,9 @@ import morgan from "morgan";
 import cors from "cors";
 import router from "./routes";
 import { Worker } from "worker_threads";
+import http from "http";
 import "dotenv/config";
+import { setupSocket } from "./socket";
 
 const PORT = Number(process.env.PORT) || 3000;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
@@ -37,6 +39,10 @@ worker.on("exit", (code) => {
   if (code !== 0) console.error(`Worker stopped with exit code ${code}`);
 });
 
-app.listen(PORT, () => {
+const httpServer = http.createServer(app);
+
+setupSocket(httpServer);
+
+httpServer.listen(PORT, () => {
   console.log(`Listening on port ${PORT}. See http://localhost:${PORT}`);
 });
