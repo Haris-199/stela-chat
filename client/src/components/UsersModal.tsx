@@ -44,6 +44,7 @@ export default function UsersModal({ userData }: { userData: UserPayload }) {
           }).then(handleGetReq);
       }
     },
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
   return (

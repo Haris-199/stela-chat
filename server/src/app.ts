@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   rateLimit({
     windowMs: 1000 * 60 * 10, // 10 minutes
-    limit: 75,
+    limit: 90,
     standardHeaders: "draft-8",
     legacyHeaders: false,
   }),
@@ -38,7 +38,7 @@ app.use(
 app.use(
   slowDown({
     windowMs: 1000 * 60 * 10, // 10 minutes
-    delayAfter: 25,
+    delayAfter: 40,
     delayMs: () => 1000,
     maxDelayMs: 5000,
   }),

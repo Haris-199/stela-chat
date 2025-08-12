@@ -140,6 +140,7 @@ function UsersCheckbox({
           return getUsersFriends(userData).then(handleGetReq);
       }
     },
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
   return (

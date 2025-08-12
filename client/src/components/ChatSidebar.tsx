@@ -26,6 +26,7 @@ export default function ChatSidebar({
   } = useQuery({
     queryFn: () => getChats(userData).then(handleGetReq),
     queryKey: ["chats", userData, handleGetReq],
+    staleTime: 1000 * 60, // 1 minute
   });
 
   useEffect(() => {
