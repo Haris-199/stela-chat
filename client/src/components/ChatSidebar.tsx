@@ -8,10 +8,12 @@ import CreateChatModal from "./CreateChatModal";
 import useRedirectOnFail from "../hooks/useRedirectOnFail";
 
 export default function ChatSidebar({
+  panelRef,
   userData,
   chatId,
   setCurrentChat,
 }: {
+  panelRef?: React.RefObject<HTMLDialogElement | null>;
   userData: UserPayload;
   chatId: number | undefined;
   setCurrentChat: (chat: Chat | null) => void;
@@ -37,7 +39,7 @@ export default function ChatSidebar({
   }
 
   return (
-    <aside className="w-80 text-white hidden lg:flex flex-col">
+    <aside className="w-full min-[550px]:w-80 text-white flex flex-col">
       <h2 className=" px-6 py-1 flex justify-between items-center text-primary-100 bg-gradient-to-r from-primary-800 to-primary-700 shadow-md">
         <p className="font-bold text-lg">Chats</p>
         <CreateChatModal />
@@ -58,7 +60,12 @@ export default function ChatSidebar({
                   ? "bg-primary-400/80 text-primary-900 font-bold"
                   : "bg-primary-700/60"
               }`}
-              onClick={() => setCurrentChat(chat)}
+              onClick={() => {
+                setCurrentChat(chat);
+                if (panelRef !== undefined) {
+                  panelRef.current?.close();
+                }
+              }}
               title={chat.name}
             >
               <Avatar letter={chat.name[0]} className="size-10" />
