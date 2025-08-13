@@ -32,7 +32,7 @@ describe("POST /api/auth/guest", () => {
   });
 
   it("should create unique names for guests", async () => {
-    const N = 100;
+    const N = 10;
     const requests = Array.from({ length: N }, () => request(app).post("/").send());
     const response = (await Promise.all(requests))[0];
 

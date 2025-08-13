@@ -2,12 +2,13 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import cors from "cors";
-import router from "./routes";
 import { Worker } from "worker_threads";
 import http from "http";
-import { setupSocket } from "./socket";
 import rateLimit from "express-rate-limit";
-import slowDown  from "express-slow-down";
+import slowDown from "express-slow-down";
+import { setupSocket } from "./socket";
+import router from "./routes";
+import { notFoundErrorHandler, serverErrorHandler } from "./controllers/error";
 import "dotenv/config";
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -45,6 +46,16 @@ app.use(
 );
 
 app.use("/api", router);
+app.all("/*splat", notFoundErrorHandler);
+app.use(serverErrorHandler);
+
+const httpServer = http.createServer(app);
+
+setupSocket(httpServer);
+
+httpServer.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}. See http://localhost:${PORT}`);
+});
 
 const worker = new Worker("./src/utils/cronjobs.js");
 
@@ -56,12 +67,4 @@ worker.on("error", (error) => {
 });
 worker.on("exit", (code) => {
   if (code !== 0) console.error(`Worker stopped with exit code ${code}`);
-});
-
-const httpServer = http.createServer(app);
-
-setupSocket(httpServer);
-
-httpServer.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}. See http://localhost:${PORT}`);
 });

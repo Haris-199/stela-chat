@@ -147,18 +147,12 @@ export const postRegister = async (req: Request, res: Response, next: NextFuncti
   }
 
   try {
-    bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
-      if (err) {
-        next(err);
-        return;
-      }
-
-      await prisma.user.create({
-        data: {
-          username: req.body.username,
-          password: hashedPassword!,
-        },
-      });
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    await prisma.user.create({
+      data: {
+        username: req.body.username,
+        password: hashedPassword,
+      },
     });
     res.json({
       success: true,
