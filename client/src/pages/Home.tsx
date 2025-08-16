@@ -66,11 +66,14 @@ export default function Home() {
             className="hidden lg:block rounded-2xl shadow-2xl border-4 border-primary-200 w-full h-auto object-cover"
           />
           {/* Small image for mobile screens */}
+          <div className="grow flex justify-center">
+
           <img
             src="/screenshots/smallscreen.png"
             alt="App screenshot small"
-            className="block lg:hidden rounded-2xl shadow-xl border-4 border-primary-200 w-[220px] h-auto object-cover"
+            className="block lg:hidden rounded-2xl shadow-xl border-4 border-primary-200 w-[min(315px,100%)] h-auto object-cover"
           />
+          </div>
         </div>
       </section>
       <Footer />
