@@ -15,8 +15,8 @@ export default function Home() {
       <Header userIsNotLoggedIn={userIsNotLoggedIn} />
 
       {/* Hero Section */}
-      <section className="flex-1 flex flex-col md:flex-row items-center justify-center text-center md:text-left p-10 gap-1 md:gap-8">
-        <div className="flex-1 flex flex-col items-center text-center">
+      <section className="self-center max-w-[2200px] flex-1 flex flex-col md:flex-row items-center justify-center text-center md:text-left p-10 gap-1 md:gap-8 xl:gap-20">
+        <div className="shrink flex flex-col items-center text-center">
           <h2 className="text-5xl font-extrabold md:ml-10 text-primary-800 drop-shadow-lg">
             Connect. Chat. Collaborate.
           </h2>
@@ -58,16 +58,16 @@ export default function Home() {
           )}
         </div>
         {/* Image Section - appears below text on mobile, right on md+ */}
-        <div className="flex-1 flex justify-center items-center w-full mt-8 md:mt-0">
+        <div className="grow flex flex-wrap justify-center items-center w-full mt-8 md:mt-0">
           {/* Wide image for lg screens */}
           <img
-            src="../../public/screenshots/widescreen.png"
+            src="/screenshots/widescreen.png"
             alt="App screenshot wide"
-            className="hidden lg:block rounded-2xl shadow-2xl border-4 border-primary-200 w-[clamp(600px,90%,1200px)] h-auto object-cover"
+            className="hidden lg:block rounded-2xl shadow-2xl border-4 border-primary-200 w-full h-auto object-cover"
           />
           {/* Small image for mobile screens */}
           <img
-            src="../../public/screenshots/smallscreen.png"
+            src="/screenshots/smallscreen.png"
             alt="App screenshot small"
             className="block lg:hidden rounded-2xl shadow-xl border-4 border-primary-200 w-[220px] h-auto object-cover"
           />

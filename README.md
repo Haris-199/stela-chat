@@ -1,6 +1,6 @@
 # Stela Chat 💬
 
-A modern, full-featured messaging app built as part of [The Odin Project](https://www.theodinproject.com/) web development curriculum. Stela Chat is designed with a focus on real-time communication, beautiful UI, and robust security, following JAMstack principles for a fast and scalable experience.
+A modern, full-featured messaging app built as part of [The Odin Project](https://www.theodinproject.com/) web development curriculum. Stela Chat is designed with a focus on real-time communication, beautiful UI, and robust security, following the [JAMstack](https://jamstack.org/) architecture.
 
 ## ✨ Features
 - Real-time chat with multiple users and channels

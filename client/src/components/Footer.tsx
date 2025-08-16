@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="mt-auto py-6 text-center text-primary-600 bg-white/80 shadow-inner">
+    <footer className="mt-auto py-3 text-center text-primary-600 bg-white/80 shadow-inner">
       &copy; {new Date().getFullYear()} Stela Chat. Built with ❤️.
       <br />
       <span className="block mt-2 text-sm text-primary-500">
