@@ -59,23 +59,17 @@ export default function Home() {
         </div>
         {/* Image Section - appears below text on mobile, right on md+ */}
         <div className="flex-1 flex justify-center items-center w-full mt-8 md:mt-0">
-          {/* Wide image for xl screens */}
+          {/* Wide image for lg screens */}
           <img
-            src="https://placehold.co/600x400?text=Wide+Screenshot"
+            src="../../public/screenshots/widescreen.png"
             alt="App screenshot wide"
-            className="hidden xl:block rounded-2xl shadow-2xl border-4 border-primary-200 w-[clamp(500px,80%,800px)] h-auto object-cover"
-          />
-          {/* Medium image for md/lg screens */}
-          <img
-            src="https://placehold.co/400x300?text=Medium+Screenshot"
-            alt="App screenshot medium"
-            className="hidden md:block xl:hidden rounded-2xl shadow-2xl border-4 border-primary-200 w-[320px] h-auto object-cover"
+            className="hidden lg:block rounded-2xl shadow-2xl border-4 border-primary-200 w-[clamp(600px,90%,1200px)] h-auto object-cover"
           />
           {/* Small image for mobile screens */}
           <img
-            src="https://placehold.co/150x200?text=Small+Screenshot"
+            src="../../public/screenshots/smallscreen.png"
             alt="App screenshot small"
-            className="block md:hidden rounded-2xl shadow-xl border-4 border-primary-200 w-[220px] h-auto object-cover"
+            className="block lg:hidden rounded-2xl shadow-xl border-4 border-primary-200 w-[220px] h-auto object-cover"
           />
         </div>
       </section>

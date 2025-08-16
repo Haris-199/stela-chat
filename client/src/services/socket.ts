@@ -1,4 +1,4 @@
-import { io } from "socket.io-client"; // this changed test this
+import { io } from "socket.io-client";
 
 const token = localStorage.getItem("user")
   ? JSON.parse(localStorage.getItem("user") as string).token

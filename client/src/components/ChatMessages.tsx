@@ -124,7 +124,7 @@ export default function ChatMessages({
         ref={messageListRef}
       >
         {/* Messages */}
-        <div className="grow flex flex-col space-y-4 relative">
+        <div className="grow flex flex-col space-y-3.5 relative">
           {msgs !== undefined && msgs.length > 0 ? (
             msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
           ) : (
