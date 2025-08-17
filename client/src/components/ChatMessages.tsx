@@ -6,8 +6,9 @@ import Message from "./Message";
 import { createMessageInChat, getMessagesOfChat } from "../services/api";
 import { Chat, UserPayload } from "../types";
 import { Smile, Send } from "lucide-react";
-import socket from "../services/socket";
+import createSocket from "../services/socket";
 import useRedirectOnFail from "../hooks/useRedirectOnFail";
+import { Socket } from "socket.io-client";
 
 export default function ChatMessages({
   userData,
@@ -17,6 +18,9 @@ export default function ChatMessages({
   currentChat: Chat;
 }) {
   const chatId = currentChat.id;
+  const socketRef = useRef<null | Socket>(null);
+  if (socketRef.current === null) socketRef.current = createSocket(userData.token);
+  const socket = socketRef.current;
 
   const [emojiPanelOpen, setEmojiPanelOpen] = useState(false);
   const [textInput, setTextInput] = useState("");
@@ -42,11 +46,11 @@ export default function ChatMessages({
     return () => {
       socket.disconnect();
     };
-  }, [chatId]);
+  }, [chatId, socket]);
 
   useEffect(() => {
     socket.emit("joinChat", chatId);
-  }, [chatId]);
+  }, [chatId, socket]);
 
   useEffect(() => {
     function invalidateMessages() {
@@ -56,12 +60,16 @@ export default function ChatMessages({
     return () => {
       socket.off("receiveMessage", invalidateMessages);
     };
-  }, [chatId, queryClient, userData]);
+  }, [chatId, socket, queryClient, userData]);
 
   const { mutateAsync, isPending: sendingMessage } = useMutation({
     mutationFn: () => createMessageInChat(userData, chatId, textInput).then(handlePostReq),
     onSuccess: () => {
-      socket.volatile.emit("sendMessage", chatId, textInput);
+      socket.volatile.emit(
+        "sendMessage",
+        chatId,
+        textInput
+      );
       queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] });
     },
   });
@@ -93,6 +101,7 @@ export default function ChatMessages({
       await mutateAsync();
       setTextInput("");
     } catch (error) {
+      if ((error as Error).name === "RangeError") return;
       console.error(error);
       navigate("/500");
     }

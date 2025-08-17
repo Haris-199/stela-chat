@@ -16,7 +16,6 @@ export function setupSocket(
     },
   });
 
-
   io.use((socket, next) => {
     const { token } = socket.handshake.auth;
     if (!token) return next(new Error("Authentication error"));
@@ -49,8 +48,7 @@ export function setupSocket(
       socket.to(chatId).emit("receiveMessage", { sender: socket.id, message });
     });
 
-    socket.on("disconnect", () => {
-    });
+    socket.on("disconnect", () => {});
   });
 
   return io;

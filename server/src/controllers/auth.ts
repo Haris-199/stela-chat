@@ -4,8 +4,7 @@ import bcrypt from "bcryptjs";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import { PrismaClientKnownRequestError } from "../../prisma/generated/prisma/runtime/library";
-
+import { Prisma } from "../../prisma/generated/prisma";
 const { JWT_KEY } = process.env;
 
 if (JWT_KEY === undefined) {
@@ -20,13 +19,8 @@ const options = {
 passport.use(
   new JwtStrategy(options, async (jwt_payload, done) => {
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: jwt_payload.id },
-      });
-
-      if (user !== null) {
-        return done(null, user);
-      }
+      const user = await prisma.user.findUnique({ where: { id: jwt_payload.id } });
+      if (user !== null) return done(null, user);
       return done(null, false);
     } catch (error) {
       return done(error, false);
@@ -49,7 +43,7 @@ export const postGuest = async (req: Request, res: Response, next: NextFunction)
         });
         break;
       } catch (error) {
-        if (error instanceof PrismaClientKnownRequestError) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === "P2002") continue; // Unique constraint failed
         }
         throw error;
