@@ -65,11 +65,7 @@ export default function ChatMessages({
   const { mutateAsync, isPending: sendingMessage } = useMutation({
     mutationFn: () => createMessageInChat(userData, chatId, textInput).then(handlePostReq),
     onSuccess: () => {
-      socket.volatile.emit(
-        "sendMessage",
-        chatId,
-        textInput
-      );
+      socket.volatile.emit("sendMessage", chatId, textInput);
       queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] });
     },
   });

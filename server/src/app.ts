@@ -4,8 +4,6 @@ import morgan from "morgan";
 import cors from "cors";
 import { Worker } from "worker_threads";
 import http from "http";
-import rateLimit from "express-rate-limit";
-import slowDown from "express-slow-down";
 import { setupSocket } from "./socket";
 import router from "./routes";
 import { notFoundErrorHandler, serverErrorHandler } from "./controllers/error";
@@ -28,22 +26,6 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(
-  rateLimit({
-    windowMs: 1000 * 60 * 10, // 10 minutes
-    limit: 90,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
-  }),
-);
-app.use(
-  slowDown({
-    windowMs: 1000 * 60 * 10, // 10 minutes
-    delayAfter: 40,
-    delayMs: () => 1000,
-    maxDelayMs: 5000,
-  }),
-);
 
 app.use("/api", router);
 app.all("/*splat", notFoundErrorHandler);
