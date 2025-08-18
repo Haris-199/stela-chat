@@ -10,7 +10,7 @@ export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boole
   return (
     <header className="flex justify-center px-8 py-2.5 bg-white/80 shadow-md">
       <div className="w-[min(100%,2200px)] flex items-center justify-between">
-        <h1 className="text-3xl grow font-bold pr-1 text-primary-700 tracking-tight">
+        <h1 className="text-3xl text-[#1181fe] font-bold font-[Tahoma] tracking-wide grow pr-1">
           <img
             src="/logo.png"
             alt="App screenshot wide"
