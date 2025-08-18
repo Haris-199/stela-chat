@@ -67,12 +67,11 @@ export default function Home() {
           />
           {/* Small image for mobile screens */}
           <div className="grow flex justify-center">
-
-          <img
-            src="/screenshots/smallscreen.png"
-            alt="App screenshot small"
-            className="block lg:hidden rounded-2xl shadow-xl border-4 border-primary-200 w-[min(315px,100%)] h-auto object-cover"
-          />
+            <img
+              src="/screenshots/smallscreen.png"
+              alt="App screenshot small"
+              className="block lg:hidden rounded-2xl shadow-xl border-4 border-primary-200 w-[min(315px,100%)] h-auto object-cover"
+            />
           </div>
         </div>
       </section>
