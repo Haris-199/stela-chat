@@ -6,11 +6,12 @@ import useSignout from "../hooks/useSignout";
 export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const signout = useSignout();
-
+  // from 205deg 79% 42%
+  //   to 212deg 67% 46%
   return (
     <header className="flex justify-center px-8 py-2.5 bg-white/80 shadow-md">
       <div className="w-[min(100%,2200px)] flex items-center justify-between">
-        <h1 className="text-3xl text-[#1181fe] font-bold font-[Tahoma] tracking-wide grow pr-1">
+        <h1 className="text-3xl filter-[hue-rotate(7deg)_saturate(79%)_brightness(92%)] text-[#1181fe] font-bold font-[Tahoma] tracking-wide grow pr-1">
           <img
             src="/logo.png"
             alt="App screenshot wide"
