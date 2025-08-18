@@ -24,7 +24,7 @@ import Spinner from "./Spinner";
 import useRedirectOnFail from "../hooks/useRedirectOnFail";
 import { FriendRequest, User, UserPayload } from "../types";
 
-export default function UsersModal({ userData }: { userData: UserPayload }) {
+export default function FriendsModal({ userData }: { userData: UserPayload }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mode, setMode] = useState<"users" | "friends" | "requests">("users");
   const { handleGetReq } = useRedirectOnFail();
@@ -52,11 +52,11 @@ export default function UsersModal({ userData }: { userData: UserPayload }) {
       <button
         type="button"
         className="size-15 flex flex-col items-center p-2 rounded-lg hover:bg-primary-700 text-primary-100"
-        title="Users"
+        title="Friends"
         onClick={() => dialogRef.current?.showModal()}
       >
         <Users size={24} />
-        <span className="text-xs mt-1">Users</span>
+        <span className="text-xs mt-1">Friends</span>
       </button>
       <dialog
         ref={dialogRef}
@@ -77,7 +77,7 @@ export default function UsersModal({ userData }: { userData: UserPayload }) {
         <div className=" h-full bg-gradient-to-br from-primary-700/90 via-primary-500/90 to-primary-400/90 flex flex-col">
           <div className="flex justify-between items-center pl-6 pr-5 pt-4 pb-3">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <UsersIcon size={22} /> Users
+              <UsersIcon size={22} /> Friends
             </h2>
             <button
               type="button"
@@ -99,7 +99,7 @@ export default function UsersModal({ userData }: { userData: UserPayload }) {
               onClick={() => setMode("users")}
               tabIndex={mode === "users" ? -1 : undefined}
             >
-              All Users
+              Add Friends
             </button>
             <button
               type="button"

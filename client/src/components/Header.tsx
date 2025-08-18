@@ -6,8 +6,7 @@ import useSignout from "../hooks/useSignout";
 export default function Header({ userIsNotLoggedIn }: { userIsNotLoggedIn: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const signout = useSignout();
-  // from 205deg 79% 42%
-  //   to 212deg 67% 46%
+
   return (
     <header className="flex justify-center px-8 py-2.5 bg-white/80 shadow-md">
       <div className="w-[min(100%,2200px)] flex items-center justify-between">
