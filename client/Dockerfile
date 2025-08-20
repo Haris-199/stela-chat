@@ -6,10 +6,12 @@ COPY client/package.json client/package-lock.json* ./
 
 RUN npm install
 
-COPY . .
+WORKDIR /app/client
+
+COPY client/ .
 
 RUN npm run build
 
 EXPOSE 8080
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "dev"]
