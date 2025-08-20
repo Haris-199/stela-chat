@@ -1,23 +1,15 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
 COPY client/package.json client/package-lock.json* ./
 
-RUN npm ci
+RUN npm install
 
-COPY client/ ./
+COPY . .
 
 RUN npm run build
 
-FROM node:18-alpine
+EXPOSE 8080
 
-WORKDIR /app
-
-RUN npm install -g serve
-
-COPY --from=builder /app/dist .
-
-EXPOSE 80
-
-CMD ["serve", "-s", ".", "-l", "80"]
+CMD ["npm", "run", "start"]
