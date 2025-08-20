@@ -6,18 +6,18 @@ COPY client/package.json client/package-lock.json* ./
 
 RUN npm ci
 
-COPY client/. ./
-
+COPY client/ ./
 
 RUN npm run build
 
+FROM node:18-alpine
 
-FROM nginx:stable-alpine
+WORKDIR /app
 
+RUN npm install -g serve
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist .
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", ".", "-l", "80"]
