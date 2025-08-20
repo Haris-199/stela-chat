@@ -3,10 +3,10 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY client/package.json client/package-lock.json* ./
 RUN npm ci
 
-COPY . .
+COPY client/ .
 RUN npm run build
 
 FROM nginx:stable-alpine
