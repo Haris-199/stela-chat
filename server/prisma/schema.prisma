@@ -1,23 +1,56 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DEV_DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  password    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  guestExpiry DateTime?
+  messages    Message[]
+  chats       Chat[]
+
+  friends  User[] @relation("UserFriends")
+  friendOf User[] @relation("UserFriends")
+
+  sentFriendRequests     FriendRequest[] @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("ReceivedFriendRequests")
+}
+
+model FriendRequest {
+  id         Int  @id @default(autoincrement())
+  sender     User @relation("SentFriendRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   Int
+  receiver   User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId Int
+
+  @@unique([senderId, receiverId])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sender    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId    Int
+}
+
+model Chat {
   id        Int       @id @default(autoincrement())
-  email     String    @unique
-  username  String    @unique
-  password  String
+  name      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  users     User[]
+  messages  Message[]
 }

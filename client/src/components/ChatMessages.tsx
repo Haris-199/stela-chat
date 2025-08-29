@@ -1,0 +1,253 @@
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
+import Message from "./Message";
+import { createMessageInChat, getMessagesOfChat } from "../services/api";
+import { Chat, UserPayload } from "../types";
+import { Smile, Send } from "lucide-react";
+import createSocket from "../services/socket";
+import useRedirectOnFail from "../hooks/useRedirectOnFail";
+import { Socket } from "socket.io-client";
+
+export default function ChatMessages({
+  userData,
+  currentChat,
+}: {
+  userData: UserPayload;
+  currentChat: Chat;
+}) {
+  const chatId = currentChat.id;
+  const socketRef = useRef<null | Socket>(null);
+  if (socketRef.current === null) socketRef.current = createSocket(userData.token);
+  const socket = socketRef.current;
+
+  const [emojiPanelOpen, setEmojiPanelOpen] = useState(false);
+  const [textInput, setTextInput] = useState("");
+  const messageListRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { handleGetReq, handlePostReq } = useRedirectOnFail();
+
+  const {
+    data: msgs,
+    isLoading,
+    error: getError,
+  } = useQuery({
+    queryFn: () => getMessagesOfChat(userData, chatId).then(handleGetReq),
+    queryKey: ["Messages", chatId, userData, handleGetReq],
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, [chatId, socket]);
+
+  useEffect(() => {
+    socket.emit("joinChat", chatId);
+  }, [chatId, socket]);
+
+  useEffect(() => {
+    function invalidateMessages() {
+      queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] });
+    }
+    socket.on("receiveMessage", invalidateMessages);
+    return () => {
+      socket.off("receiveMessage", invalidateMessages);
+    };
+  }, [chatId, socket, queryClient, userData]);
+
+  const { mutateAsync, isPending: sendingMessage } = useMutation({
+    mutationFn: () => createMessageInChat(userData, chatId, textInput).then(handlePostReq),
+    onSuccess: () => {
+      socket.volatile.emit("sendMessage", chatId, textInput);
+      queryClient.invalidateQueries({ queryKey: ["Messages", chatId, userData] });
+    },
+  });
+
+  useEffect(() => {
+    if (msgs !== null && messageListRef.current !== null) {
+      messageListRef.current.scroll({ top: messageListRef.current.scrollHeight });
+    }
+  }, [msgs]);
+
+  useEffect(() => {
+    if (!emojiPanelOpen) textAreaRef.current?.focus();
+  }, [emojiPanelOpen]);
+
+  socket.on("connect_error", () => {
+    navigate("/login");
+  });
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (textInput.trim() === "") {
+      textAreaRef.current?.focus();
+      return;
+    }
+
+    try {
+      textAreaRef.current?.focus();
+      await mutateAsync();
+      setTextInput("");
+    } catch (error) {
+      if ((error as Error).name === "RangeError") return;
+      console.error(error);
+      navigate("/500");
+    }
+  };
+
+  const handleKeyDown = async (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      formRef.current?.requestSubmit();
+    }
+  };
+
+  if (getError !== null) {
+    navigate("/500");
+    console.error(getError);
+  }
+
+  if (isLoading) return <SkeletonLoader />;
+
+  return (
+    <>
+      <div
+        className="grow flex flex-col overflow-y-auto pl-6 pr-3 pt-4 space-y-4 relative"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "var(--color-primary-300) var(--color-primary-200)",
+          scrollbarGutter: "stable",
+        }}
+        ref={messageListRef}
+      >
+        {/* Messages */}
+        <div className="grow flex flex-col space-y-3.5 relative">
+          {msgs !== undefined && msgs.length > 0 ? (
+            msgs.map((msg) => <Message userData={userData} key={msg.id} msg={msg} />)
+          ) : (
+            <h1 className="text-primary-700 text-center font-bold">No messages yet.</h1>
+          )}
+        </div>
+
+        {/* Input */}
+        <form
+          onSubmit={handleSubmit}
+          ref={formRef}
+          className="sticky w-full left-0 bottom-0 py-4 px-1 flex gap-2 items-center bg-clip-border before:bg-primary-200/60 before:absolute before:blur-sm before:size-full before:-z-10"
+        >
+          <div
+            className={"absolute bottom-18 left-0 z-20 w-full"}
+            style={{ scrollbarColor: "var(--color-gray-400) transparent" }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setEmojiPanelOpen(false);
+                setTimeout(() => textAreaRef.current?.focus(), 0);
+              }
+            }}
+          >
+            <EmojiPicker
+              lazyLoadEmojis
+              emojiStyle={EmojiStyle.NATIVE}
+              width={300}
+              open={emojiPanelOpen}
+              onEmojiClick={(emojiData) => setTextInput((prevText) => prevText + emojiData.emoji)}
+            />
+          </div>
+          <button
+            type="button"
+            className={`p-2 rounded-full text-primary-100 bg-gradient-to-br from-primary-400 to-primary-500 hover:bg-primary-100 focus-visible:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 hover:from-primary-500 hover:to-primary-600 ${
+              emojiPanelOpen ? "bg-none bg-primary-100 text-primary-400" : ""
+            }`}
+            title="Add emoji"
+            onClick={() => setEmojiPanelOpen(!emojiPanelOpen)}
+          >
+            <Smile size={25} />
+          </button>
+          <textarea
+            className="no-scrollbar bg-white overflow-visible resize-none grow px-4 py-2 border-primary-400 text-wrap rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+            placeholder="Type your message..."
+            value={textInput}
+            ref={textAreaRef}
+            onChange={(e) => setTextInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows={1}
+          />
+          <button
+            type="submit"
+            className="p-2 size-10 relative rounded-full bg-gradient-to-br from-primary-400 to-primary-500 cursor-pointer text-white font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-800 hover:from-primary-500 hover:to-primary-600 transition-colors disabled:opacity-60 disabled:hover:cursor-default"
+            title="Send"
+            disabled={sendingMessage}
+          >
+            <Send size={24} className="absolute top-[22%] left-[18%]" />
+          </button>
+        </form>
+      </div>
+    </>
+  );
+}
+
+function SkeletonLoader() {
+  const N = 5;
+  const messages = [<IncomingMessageSkeleton key={0} />, <OutgoingMessageSkeleton key={1} />];
+  const ran = Math.floor(Math.random() * (N - 2));
+
+  for (let i = 0; i < ran; i++) {
+    messages.push(<IncomingMessageSkeleton key={2 + i} />);
+  }
+  for (let i = 0; i < N - ran - 2; i++) {
+    messages.push(<OutgoingMessageSkeleton key={2 + ran + i} />);
+  }
+
+  for (let i = 0; i < N; i++) {
+    const j = Math.floor(Math.random() * N);
+    [messages[i], messages[j]] = [messages[j], messages[i]];
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto px-6 py-4 pb-0 space-y-4 overflow-hidden">
+      {messages}
+    </div>
+  );
+}
+
+function IncomingMessageSkeleton() {
+  return (
+    <div className="animate-pulse grid grid-cols-[auto_1fr_auto] items-center gap-x-2 text-transparent">
+      <div className="col-start-2 row-start-1 flex gap-1 items-center ml-3 text-sm">
+        <span className="rounded-full bg-primary-300/60">Username</span>
+        <span className="rounded-full bg-primary-300/30">8:00 AM</span>
+      </div>
+      <div className="col-start-1 row-start-2">
+        <div className="size-12 rounded-full bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center font-bold shadow" />
+      </div>
+      <div className="col-start-2 row-start-2 px-4 py-2 rounded-2xl shadow-md bg-white/60 flex flex-col mr-auto">
+        <div className="break-words">This is a message for the skeleton loader.</div>
+      </div>
+    </div>
+  );
+}
+
+function OutgoingMessageSkeleton() {
+  return (
+    <div className="animate-pulse grid grid-cols-[auto_1fr_auto] items-center gap-x-2 text-transparent">
+      <div className="col-start-2 row-start-1 flex gap-1 items-center justify-self-end mr-3 text-sm">
+        <span className="rounded-full bg-primary-300/30">8:00 AM</span>
+        <span className="rounded-full bg-primary-300/60">Person</span>
+      </div>
+      <div className="col-start-3 row-start-2">
+        <div className="size-12 rounded-full bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center font-bold shadow" />
+      </div>
+      <div className="col-start-2 row-start-2 px-4 py-2 rounded-2xl shadow-md bg-white/60 flex flex-col ml-auto">
+        <div className="break-words">This is a message for the skeleton loader.</div>
+      </div>
+    </div>
+  );
+}
