@@ -7,9 +7,13 @@ import "dotenv/config";
 export function setupSocket(
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>,
 ) {
+  const allowedOrigins = ["http://localhost:5173", process.env.CLIENT_URL].map((o) =>
+    o?.replace(/\/$/, ""),
+  );
+
   const io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL || "http://localhost:5173",
+      origin: allowedOrigins.filter((o): o is string => typeof o === "string"),
       methods: ["GET", "POST"],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],
