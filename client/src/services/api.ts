@@ -12,7 +12,7 @@ import {
   APIError,
 } from "../types";
 
-const URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+const URL = import.meta.env.VITE_SERVER_URL ?? "http://localhost:3000";
 
 /**
  * Fetches the incoming friend requests for a user from the backend.

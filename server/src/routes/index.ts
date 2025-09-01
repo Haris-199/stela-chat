@@ -5,6 +5,7 @@ import chatRouter from "./chat";
 import userRouter from "./user";
 import rateLimit from "express-rate-limit";
 import slowDown from "express-slow-down";
+import { notFoundErrorHandler } from "../controllers/error";
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use("/auth", rl(), sd(), authRouter);
 router.use("/chat", rl(300), chatRouter);
 router.use("/user", rl(), sd(), userRouter);
 router.use("/", rl(), sd(), homeRouter);
+router.all("/*splat", rl(), sd(), notFoundErrorHandler);
 
 export default router;

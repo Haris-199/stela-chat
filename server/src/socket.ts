@@ -7,18 +7,7 @@ import "dotenv/config";
 export function setupSocket(
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>,
 ) {
-  const allowedOrigins = ["http://localhost:5173", process.env.CLIENT_URL].map((o) =>
-    o?.replace(/\/$/, ""),
-  );
-
-  const io = new Server(server, {
-    cors: {
-      origin: allowedOrigins.filter((o): o is string => typeof o === "string"),
-      methods: ["GET", "POST"],
-      credentials: true,
-      allowedHeaders: ["Content-Type", "Authorization"],
-    },
-  });
+  const io = new Server(server);
 
   io.use((socket, next) => {
     const { token } = socket.handshake.auth;
