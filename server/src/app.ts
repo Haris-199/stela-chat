@@ -1,44 +1,27 @@
+import "dotenv/config";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
-import cors from "cors";
 import { Worker } from "worker_threads";
 import http from "http";
 import { setupSocket } from "./socket";
 import router from "./routes";
-import { notFoundErrorHandler, serverErrorHandler } from "./controllers/error";
-import "dotenv/config";
+import { serverErrorHandler } from "./controllers/error";
+import serveReactApp from "./middleware/reactapp";
 
 const PORT = Number(process.env.PORT) || 3000;
-const allowedOrigins = ["http://localhost:5173", process.env.CLIENT_URL].map((o) =>
-  o?.replace(/\/$/, ""),
-);
 
 const app = express();
 
 app.use(helmet());
 app.use(morgan("dev"));
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      const normalized = origin.replace(/\/$/, "");
-      if (allowedOrigins.includes(normalized)) {
-        return callback(null, true);
-      }
-      callback(new Error("Not allowed by CORS"));
-    },
-    optionsSuccessStatus: 200,
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api", router);
-app.all("/*splat", notFoundErrorHandler);
+app.use(serveReactApp);
+app.use(express.static("build"));
 app.use(serverErrorHandler);
 
 const httpServer = http.createServer(app);
