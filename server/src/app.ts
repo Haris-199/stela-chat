@@ -18,7 +18,13 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      connectSrc: ["'self'", `http://localhost:${PORT}`, `ws://localhost:${PORT}`],
+      connectSrc: [
+        "'self'",
+        `http://localhost:${PORT}`,
+        `ws://localhost:${PORT}`,
+        "https://stela-chat.up.railway.app",
+        "wss://stela-chat.up.railway.app",
+      ],
     },
   }),
 );
