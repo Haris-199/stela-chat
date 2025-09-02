@@ -87,7 +87,7 @@ npm run dev
 ```
 
 - The frontend will be available at `http://localhost:5173` (or as shown in your terminal)
-- The backend API will run at `http://localhost:3000` (or as configured)
+- The backend API will run at `http://localhost:8080` (or as configured)
 
 ## 🤝 Credits
 - Built for [The Odin Project](https://www.theodinproject.com/)
