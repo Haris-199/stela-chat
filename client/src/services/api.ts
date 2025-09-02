@@ -12,7 +12,7 @@ import {
   APIError,
 } from "../types";
 
-const URL = import.meta.env.VITE_SERVER_URL ?? "http://localhost:8080";
+const URL = "";
 
 /**
  * Fetches the incoming friend requests for a user from the backend.

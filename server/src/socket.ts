@@ -7,7 +7,9 @@ import "dotenv/config";
 export function setupSocket(
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>,
 ) {
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: { origin: process.env.CLIENT_URL, methods: ["GET", "POST"] },
+  });
 
   io.use((socket, next) => {
     const { token } = socket.handshake.auth;
