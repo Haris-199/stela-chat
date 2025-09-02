@@ -9,8 +9,8 @@ export function setupSocket(
 ) {
   const allowedOrigins = [
     process.env.CLIENT_URL || "http://localhost:5173",
-    "https://stela-chat.up.railway.app",
-    "http://stela-chat.up.railway.app",
+    "https://stela-chat.onrender.com",
+    "http://stela-chat.onrender.com",
   ];
   const io = new Server(server, {
     cors: {
