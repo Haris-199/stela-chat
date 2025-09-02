@@ -7,8 +7,17 @@ import "dotenv/config";
 export function setupSocket(
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>,
 ) {
+  const allowedOrigins = [
+    process.env.CLIENT_URL || "http://localhost:5173",
+    "https://stela-chat.up.railway.app",
+    "http://stela-chat.up.railway.app",
+  ];
   const io = new Server(server, {
-    cors: { origin: process.env.CLIENT_URL, methods: ["GET", "POST"] },
+    cors: {
+      origin: allowedOrigins,
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
   });
 
   io.use((socket, next) => {
