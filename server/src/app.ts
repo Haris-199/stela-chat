@@ -14,6 +14,14 @@ const PORT = Number(process.env.PORT) || 3000;
 const app = express();
 
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", `http://localhost:${PORT}`, `ws://localhost:${PORT}`],
+    },
+  }),
+);
 app.use(morgan("dev"));
 
 app.use(express.json());
